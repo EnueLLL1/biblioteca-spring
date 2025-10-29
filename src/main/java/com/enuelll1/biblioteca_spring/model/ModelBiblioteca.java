@@ -62,19 +62,17 @@ public class ModelBiblioteca {
     @Column(name = "isbn", unique = true, length = 20, nullable = false)
     private String isbnLivro;
 
-    // Definindo a coluna categoriaLivro da tabela "livros_db"
-    // Definindo que ela pode ter uma ou mais categorias com 100 Char, e não pode
-    // ser NULO nem Vazio
-    @NotBlank(message = "A categoria não pode estar em branco")
-    @Column(name = "categoriaLivro", length = 100, nullable = false)
-    private String categoriaLivro;
+    // Definindo uma Relação de Muitos pra Muitos
+    @ManyToMany
+    @JoinTable(name = "livro_categoria", joinColumns = @JoinColumn(name = "idLivro"), inverseJoinColumns = @JoinColumn(name = "idCategoria"))
+    private Set<Categoria> categoria = new HashSet<>();
 
-    // Relação de Muitos pra Muitos
+    // Defininfo uma Relação de Muitos pra Muitos
     @ManyToMany
     @JoinTable(name = "livro_genero", joinColumns = @JoinColumn(name = "idLivro"), inverseJoinColumns = @JoinColumn(name = "idGenero"))
     private Set<Genero> generos = new HashSet<>();
 
-    // Tem que ser um construtor vazio para o JPA Funcionar
     public ModelBiblioteca() {
+    // Tem que ser um construtor vazio para o JPA Funcionar
     }
 }

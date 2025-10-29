@@ -27,6 +27,8 @@ public class Genero {
     @ManyToMany(mappedBy = "generos")
     private Set<ModelBiblioteca> livros = new HashSet<>();
 
-    public Genero() {}
+    public Genero() {
+        // Tem que ser um construtor vazio para o JPA Funcionar
+    }
 }
 
