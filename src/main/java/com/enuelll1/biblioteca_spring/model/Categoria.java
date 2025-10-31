@@ -8,10 +8,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
-// Definindo a coluna categoriaLivro da tabela "livros_db"
-// Definindo que ela pode ter uma ou mais categorias com 100 Char, e não pode
-// ser NULO nem Vazio
-
 @Getter
 @Setter
 @Entity

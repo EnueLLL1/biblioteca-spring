@@ -28,13 +28,6 @@ public class ModelBiblioteca {
     private String tituloLivro;
 
 
-    // Definindo a coluna autorLivro da tabela "livros_db"
-    // Definindo que ela pode ter um nome de autor de 100 Char, e não pode ser NULO nem Vazio.
-    @NotBlank(message = "O autor não pode estar em branco")
-    @Column(name = "autorLivro", length = 100, nullable = false)
-    private String autorLivro;
-
-
     // Definindo a coluna editoraLivro da tabela "livros_db"
     // Definindo que ela pode ter o nome da editora de 100 Char, e não pode ser NULO nem Vazio.
     @NotBlank(message = "A editora não pode estar em branco")
@@ -63,6 +56,14 @@ public class ModelBiblioteca {
     @Column(name = "isbn", unique = true, length = 20, nullable = false)
     private String isbnLivro;
 
+
+    // Definindo a relação com o autor de que Um Autor pode ter Muitos Livros
+    @ManyToOne
+    @JoinColumn(
+        name = "idAutor"
+    )
+    // COMO UM LIVRO PODE TER APENAS UM AUTOR, TEM QUE SER UTILIZADO ESTE TIPO DE RELACIONAMENTO
+    private ModelAutor autor;
 
     // Definindo uma Relação de Muitos pra Muitos
     @ManyToMany

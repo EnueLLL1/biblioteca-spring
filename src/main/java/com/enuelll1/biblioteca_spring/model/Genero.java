@@ -7,8 +7,6 @@ import lombok.Setter;
 import java.util.HashSet;
 import java.util.Set;
 
-// Definindo a coluna generoLivro da tabela "livros_db"
-// Definindo que ela pode ter um ou mais generos com 50 Char, e não pode ser NULO nem Vazio.
 @Getter
 @Setter
 @Entity
