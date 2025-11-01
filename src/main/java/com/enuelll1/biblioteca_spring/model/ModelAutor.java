@@ -34,7 +34,7 @@ public class ModelAutor {
     @OneToMany(mappedBy = "autor")
     private Set<ModelBiblioteca> livros = new HashSet<>();
 
-    private ModelAutor(){
+    public ModelAutor(){
         // Tem que ser um construtor vazio para o JPA Funcionar
     }
 }

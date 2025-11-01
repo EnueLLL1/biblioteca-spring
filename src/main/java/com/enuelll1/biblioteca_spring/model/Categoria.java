@@ -23,7 +23,7 @@ public class Categoria {
     private String nomeCategoria;
 
     // Relação inversa com livros
-    @ManyToMany(mappedBy = "categoria")
+    @ManyToMany(mappedBy = "categorias")
     private Set<ModelBiblioteca> livros = new HashSet<>();
     
     public Categoria(){
