@@ -5,6 +5,8 @@ import java.util.Set;
 import org.hibernate.validator.constraints.ISBN;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,11 +40,12 @@ public class ModelBiblioteca {
     private String editoraLivro;
 
     // Definindo a coluna anoPublicado da tabela "livros_db"
-    // Definindo que ela pode ter o ano publicado com 4 int, e não pode ser NULO nem
-    // Vazio.
-    @NotBlank(message = "O ano publicado não pode estar em branco")
+    // Definindo que ela pode ter o ano publicado com 4 int, e não pode ser Abaixo dos anos 100 até os anos 2100.
+    @Min(value = 1000, message = "Ano deve ser maior que 1000")
+    @Max(value = 2100, message = "Ano deve ser menor que 2100")
     @Column(name = "anoPublicado", length = 4, nullable = false)
     private int anoPublicado;
+
 
     // Definindo a coluna descricaoLivro da tabela "livros_db"
     // Definindo que ela pode ter uma descrição com 500 Char, e não pode ser NULO
@@ -66,7 +69,8 @@ public class ModelBiblioteca {
     // Definindo a relação com o autor de que Um Autor pode ter Muitos Livros
     @ManyToOne
     @JoinColumn(name = "idAutor")
-    // COMO UM LIVRO PODE TER APENAS UM AUTOR, TEM QUE SER UTILIZADO ESTE TIPO DE RELACIONAMENTO
+    // COMO UM LIVRO PODE TER APENAS UM AUTOR, TEM QUE SER UTILIZADO ESTE TIPO DE
+    // RELACIONAMENTO
     private ModelAutor autor;
 
     // Definindo uma Relação de Muitos pra Muitos
