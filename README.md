@@ -1,41 +1,52 @@
-# 📚 Biblioteca Spring
+# 📚 Sistema de Biblioteca – Primeiro Passo do Meu Roadmap Spring Boot
 
-Uma aplicação simples de biblioteca desenvolvida com **Spring Boot** para treinar e aprender conceitos essenciais de desenvolvimento Java, como relacionamentos entre tabelas, validações de dados, queries personalizadas no Repository e o uso de DTOs (Data Transfer Objects).
+Uma aplicação simples de biblioteca desenvolvida com **Spring Boot** para treinar e aprender conceitos essenciais de desenvolvimento Java.  
+Este projeto é o **Projeto #1 de 7** do meu [**Roadmap de Aprendizado em Spring Boot**](#roadmap-de-aprendizado), onde construo aplicações reais com complexidade progressiva — do básico ao avançado — com foco em **boas práticas, arquitetura limpa e aprendizado manual guiado por prompts de qualidade**.
 
-## 🌟 Funcionalidades Principais
+> 💡 **"Não uso IA para gerar código. Uso prompts para entender, planejar e codificar com propósito."**
 
-- **Relacionamentos entre Tabelas**: Implementação de relacionamentos **ManyToMany** entre entidades (Livro ↔ Gênero e Livro ↔ Categoria).
-- **Validações de Dados**: Uso de anotações como `@NotBlank` e `@ISBN` para garantir integridade dos dados.
-- **Queries Personalizadas**: Consulta e manipulação avançada de dados através do Repository do Spring Data JPA.
-- **DTOs**: Estruturação de objetos de transferência de dados para APIs mais limpas e performáticas.
+---
+
+## 🧪 O que já foi aplicado
+
+### 🔗 Relacionamentos entre Entidades
+- Implementação de relacionamentos **`@ManyToMany`** entre:
+  - `Livro` ↔ `Gênero`
+  - `Livro` ↔ `Categoria`
+
+### ✅ Validações de Dados
+- `@NotBlank` para campos obrigatórios (`tituloLivro`, `autorLivro`, etc.)
+- `@ISBN` para garantir formato válido de ISBN *(em validação customizada ou via biblioteca)*
+
+### 🔍 Queries Personalizadas com Spring Data JPA
+- Métodos no `BibliotecaRepository` para buscas específicas (ex: por título, autor, gênero)
+
+### 📦 DTOs (Data Transfer Objects)
+- Classe `ViewBiblioteca.java` como **objeto de entrada/saída da API**
+- Separação clara entre **modelo de domínio** (`ModelBiblioteca`) e **representação externa**
+
+---
 
 ## 🛠️ Tecnologias Utilizadas
 
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-brightgreen)](https://spring.io/projects/spring-boot)
-[![Java](https://img.shields.io/badge/Java-21-orange)](https://www.java.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.4-blue)](https://www.postgresql.org/)
+- **Java 21**
+- **Spring Boot** (`spring-boot-starter-web`, `spring-boot-starter-data-jpa`, `spring-boot-starter-validation`)
+- **PostgreSQL**
+- **Lombok** (para reduzir código boilerplate)
+- **Maven**
 
-- **Spring Boot Starter Web**: Para criação de APIs REST.
-- **Spring Boot Starter Data JPA**: Para persistência de dados com Hibernate.
-- **Spring Boot Starter Validation**: Para validações automáticas de entrada.
-- **PostgreSQL**: Banco de dados relacional.
-- **Lombok**: Para reduzir código boilerplate com anotações.
+---
 
-## 🚀 Como Executar
+## 🚀 Como Executar Localmente
 
-### Pré-requisitos
-- Java 21 instalado
-- PostgreSQL executando localmente
-- Maven para gerenciamento de dependências
-
-### Passos
-1. **Clone o repositório**:
+1. **Clone o repositório**
    ```bash
    git clone https://github.com/EnueLLL1/biblioteca-spring.git
    cd biblioteca-spring
    ```
 
-2. **Configure o banco de dados**: Atualize `src/main/resources/application.properties` com suas credenciais do PostgreSQL:
+2. **Configure o PostgreSQL**  
+   Atualize `src/main/resources/application.properties`:
    ```properties
    spring.datasource.url=jdbc:postgresql://localhost:5432/nome_do_banco
    spring.datasource.username=seu_usuario
@@ -43,60 +54,69 @@ Uma aplicação simples de biblioteca desenvolvida com **Spring Boot** para trei
    spring.jpa.hibernate.ddl-auto=update
    ```
 
-3. **Execute a aplicação**:
+3. **Execute a aplicação**
    ```bash
    mvn spring-boot:run
    ```
-
-A aplicação estará rodando em `http://localhost:8080`.
-
-## 📁 Estrutura do Projeto
-
-```
-src/
-├── main/java/com/enuelll1/biblioteca_spring/
-│   ├── BibliotecaSpringApplication.java       # Classe principal
-│   ├── controller/                             # Controladores REST
-│   │   └── BibliotecaController.java
-│   ├── model/                                  # Modelos/entidades JPA
-│   │   ├── ModelBiblioteca.java (Livro)
-│   │   ├── Genero.java
-│   │   └── Categoria.java
-│   └── view/                                   # DTOs e objetos de view
-│       └── ViewBiblioteca.java
-├── main/resources/
-│   ├── application.properties                  # Configurações da aplicação
-│   └── static/                                 # Recursos estáticos (CSS, JS, etc.)
-└── test/                                       # Testes unitários
-```
-
-## 🎯 Exemplos de Uso
-
-### Criar um novo livro:
-```bash
-POST /livros
-{
-  "tituloLivro": "Exemplo de Título",
-  "autorLivro": "Autor Exemplo",
-  "editoraLivro": "Editora Exemplo",
-  "anoPublicado": 2023,
-  "descricaoLivro": "Uma descrição interessante...",
-  "isbnLivro": "978-1234567890",
-  "generos": [{"idGenero": 1}, {"idGenero": 2}],
-  "categoria": [{"idCategoria": 1}]
-}
-```
-
-Para mais endpoints, consulte o `BibliotecaController.java`.
-
-## 🤝 Contribuição
-
-Sinta-se à vontade para contribuir! Abra uma issue ou envie um pull request. Ideias para melhorias são sempre bem-vindas.
-
-## 📄 Licença
-
-Este projeto não possui licença específica (ainda). Use por conta e risco 😉.
+   A API estará disponível em: `http://localhost:8080`
 
 ---
 
-Desenvolvido com ❤️ por EnueLLL1. Bom aprendizado!
+## 📡 Exemplo de Requisição (POST /livros)
+
+```json
+{
+  "tituloLivro": "Dom Casmurro",
+  "autorLivro": "Machado de Assis",
+  "editoraLivro": "Editora Brasil",
+  "anoPublicado": 1899,
+  "descricaoLivro": "Clássico da literatura brasileira...",
+  "isbnLivro": "978-85-260-0190-0",
+  "generos": [{"idGenero": 1}, {"idGenero": 3}],
+  "categoria": [{"idCategoria": 2}]
+}
+```
+
+> Para ver todos os endpoints, consulte `BibliotecaController.java`.
+
+---
+
+## 🗺️ Roadmap de Aprendizado
+
+Este projeto é o **primeiro de uma jornada estruturada** para dominar Spring Boot antes de avançar para Docker, microsserviços e nuvem.
+
+| # | Projeto                          | Nível           | Status       |
+|---|----------------------------------|------------------|--------------|
+| 1 | **Sistema de Biblioteca**        | Básico           | ✅ Em andamento |
+| 2 | To-Do List com Categorias        | Básico/Intermediário | ⏳ Próximo |
+| 3 | API de Blog/Rede Social          | Intermediário    | — |
+| 4 | E-commerce Simples               | Intermediário    | — |
+| 5 | Gerenciamento Financeiro         | Intermediário/Avançado | — |
+| 6 | Sistema de Gestão Escolar        | Avançado         | — |
+| 7 | Plataforma de Cursos Online      | Projeto Final    | — |
+
+> 🌱 **Objetivo**: Construir aplicações reais, documentar meu aprendizado e criar um portfólio que mostre **esforço, evolução e compreensão profunda** — não apenas código funcional.
+
+---
+
+## 💬 Sobre Meu Processo de Aprendizado
+
+- Todo o código é **escrito por mim**, com compreensão.
+- **Prompts são usados como ferramenta de estudo**, não de geração automática.
+- Busco **boas práticas desde o início**: validação, DTOs, separação de camadas.
+- **Commits frequentes e descritivos** refletem minha jornada passo a passo.
+
+---
+
+## 🤝 Contribuições
+
+Aceito sugestões, críticas construtivas e dicas! Se notar algo que pode ser melhorado ou quiser discutir conceitos, abra uma **issue**.  
+Este é um espaço de **aprendizado contínuo**.
+
+> 🔒 **Licença**: Ainda sem licença formal. Uso por conta e risco.  
+> ❤️ Desenvolvido com dedicação por [EnueLLL1](https://github.com/EnueLLL1)
+
+---
+
+✨ **Cada linha de código é um passo. Cada erro, uma lição.**  
+✨ **Estou aqui para aprender — e construir com propósito.**
