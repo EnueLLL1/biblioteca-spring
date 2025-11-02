@@ -26,7 +26,7 @@ public interface LivroRepository extends JpaRepository<ModelBiblioteca, Long> {
     List<ModelBiblioteca> findByTituloLivroContaining(String tituloLivro);
 
     // Buscar por ISBN
-    Optional<ModelBiblioteca> findByIsbn(String isbn);
+    Optional<ModelBiblioteca> findByIsbnLivro(String isbn);
 
     // Buscar livros disponíveis
     List<ModelBiblioteca> findByDisponivel(boolean disponivel);
@@ -35,12 +35,12 @@ public interface LivroRepository extends JpaRepository<ModelBiblioteca, Long> {
     List<ModelBiblioteca> findByAutor(ModelAutor autor);
 
     // Buscar livros por categoria
-    List<ModelBiblioteca> findByCategoria_NomeCategoriaContaining(String categoria);
+    List<ModelBiblioteca> findByCategorias_NomeCategoriaContaining(String categoria);
 
     // Buscar livros por gênero
-    List<ModelBiblioteca> findByGenero_NomeGeneroContaining(String genero);
+    List<ModelBiblioteca> findByGeneros_NomeGeneroContaining(String genero);
 
     // Verificar se ISBN já existe
-    boolean existsByIsbn(String isbn);
+    boolean existsByIsbnLivro(String isbn);
 
 }
