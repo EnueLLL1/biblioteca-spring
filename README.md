@@ -1,5 +1,7 @@
 # 📚 Sistema de Biblioteca – Primeiro Passo do Meu Roadmap Spring Boot
 
+![Spring Boot Roadmap](https://img.shields.io/badge/Roadmap%20Spring%20Boot-1%2F7-00a86b?style=flat-square&logo=spring&logoColor=white)
+
 Uma aplicação simples de biblioteca desenvolvida com **Spring Boot** para treinar e aprender conceitos essenciais de desenvolvimento Java.  
 Este projeto é o **Projeto #1 de 7** do meu [**Roadmap de Aprendizado em Spring Boot**](#roadmap-de-aprendizado), onde construo aplicações reais com complexidade progressiva — do básico ao avançado — com foco em **boas práticas, arquitetura limpa e aprendizado manual guiado por prompts de qualidade**.
 
