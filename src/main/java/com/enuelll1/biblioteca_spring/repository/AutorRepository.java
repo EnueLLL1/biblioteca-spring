@@ -22,7 +22,7 @@ public interface AutorRepository extends JpaRepository<ModelAutor, Long> {
     // Listar autores por nacionalidade
     List<ModelAutor> findByAutorNacionalidadeContaining(String nacionalidade);
 
-    // Verificar se autor existe por nome
-    boolean existsByAutorLivroContaining(String nome);
+    // Verificar se autor existe por nome exato
+    boolean existsByAutorLivro(String nome);
 
 }

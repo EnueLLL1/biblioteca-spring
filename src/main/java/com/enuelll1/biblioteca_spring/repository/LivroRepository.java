@@ -43,4 +43,13 @@ public interface LivroRepository extends JpaRepository<ModelBiblioteca, Long> {
     // Verificar se ISBN já existe
     boolean existsByIsbnLivro(String isbn);
 
+    // Buscar livros por ID do autor
+    List<ModelBiblioteca> findByAutorIdAutor(Long idAutor);
+
+    // Buscar livros por ID da categoria
+    List<ModelBiblioteca> findByCategoriasIdCategoria(Long idCategoria);
+
+    // Buscar livros por ID do gênero
+    List<ModelBiblioteca> findByGenerosIdGenero(Long idGenero);
+
 }

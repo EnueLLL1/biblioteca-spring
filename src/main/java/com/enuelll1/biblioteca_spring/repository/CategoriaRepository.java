@@ -20,4 +20,7 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
     // Verificar se existe
     boolean existsByNomeCategoria(String nome);
 
+    // Buscar por nome contendo
+    java.util.List<Categoria> findByNomeCategoriaContaining(String nome);
+
 }

@@ -28,6 +28,8 @@ List<ModelEmprestimos> findByLivro_IdLivro(Long livroId);
 List<ModelEmprestimos> findByUsuario(Usuario usuario);
 // OU por nome do usuário:
 List<ModelEmprestimos> findByUsuario_NomeContaining(String nomeUsuario);
+// OU por ID do usuário:
+List<ModelEmprestimos> findByUsuarioId(Long usuarioId);
 
 // Buscar empréstimos ativos (status = ATIVO)
 List<ModelEmprestimos> findByStatus(ModelEmprestimos.StatusEmprestimo status);

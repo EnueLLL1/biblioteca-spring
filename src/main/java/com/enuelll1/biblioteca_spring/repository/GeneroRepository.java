@@ -20,4 +20,7 @@ public interface GeneroRepository extends JpaRepository<Genero, Long> {
      // Verificar se existe
      boolean existsByNomeGenero(String nome);
 
+     // Buscar por nome contendo
+     java.util.List<Genero> findByNomeGeneroContaining(String nome);
+
 }
