@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.enuelll1.biblioteca_spring.model.ModelBiblioteca;
 import com.enuelll1.biblioteca_spring.model.ModelEmprestimos;
-import com.enuelll1.biblioteca_spring.model.Usuario;
+import com.enuelll1.biblioteca_spring.model.ModelUsuario;
 
 public interface EmprestimoRepository extends JpaRepository<ModelEmprestimos, Long> {
 
@@ -25,7 +25,7 @@ List<ModelEmprestimos> findByLivro(ModelBiblioteca livro);
 List<ModelEmprestimos> findByLivro_IdLivro(Long livroId);
 
 // Buscar por usuário
-List<ModelEmprestimos> findByUsuario(Usuario usuario);
+List<ModelEmprestimos> findByUsuario(ModelUsuario usuario);
 // OU por nome do usuário:
 List<ModelEmprestimos> findByUsuario_NomeContaining(String nomeUsuario);
 // OU por ID do usuário:

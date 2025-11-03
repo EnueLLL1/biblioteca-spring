@@ -52,7 +52,7 @@ public class ModelEmprestimos {
     // Definindo o usuario que está fazendo o emprestimo
     @ManyToOne
     @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    private ModelUsuario usuario;
 
     // Criar enum:
     public enum StatusEmprestimo {

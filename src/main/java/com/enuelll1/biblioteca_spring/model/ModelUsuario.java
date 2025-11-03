@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class Usuario {
+public class ModelUsuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,4 +21,8 @@ public class Usuario {
     
     @OneToMany(mappedBy = "usuario")
     private Set<ModelEmprestimos> emprestimos = new HashSet<>();
+
+    public ModelUsuario(){
+        // Construtor vazio
+    }
 }

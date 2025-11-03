@@ -3,9 +3,10 @@ package com.enuelll1.biblioteca_spring.service;
 import com.enuelll1.biblioteca_spring.dto.EmprestimoDTO;
 import com.enuelll1.biblioteca_spring.model.ModelBiblioteca;
 import com.enuelll1.biblioteca_spring.model.ModelEmprestimos;
-import com.enuelll1.biblioteca_spring.model.Usuario;
+import com.enuelll1.biblioteca_spring.model.ModelUsuario;
 import com.enuelll1.biblioteca_spring.repository.EmprestimoRepository;
 import com.enuelll1.biblioteca_spring.repository.LivroRepository;
+import com.enuelll1.biblioteca_spring.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,9 @@ public class EmprestimoService {
 
     @Autowired
     private LivroRepository livroRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     // ========================================
     // CONVERTER ENTITY → DTO
@@ -59,11 +63,13 @@ public class EmprestimoService {
             throw new RuntimeException("Livro não está disponível para empréstimo!");
         }
 
-        // 3. Criar usuário mock (já que não temos repository de usuário)
-        Usuario usuario = new Usuario();
-        usuario.setId(usuarioId);
-        usuario.setNome("Usuário " + usuarioId);
-        usuario.setEmail("usuario" + usuarioId + "@email.com");
+        // 3. Validar se usuário existe
+        Optional<ModelUsuario> usuarioOpt = usuarioRepository.findById(usuarioId);
+        if (usuarioOpt.isEmpty()) {
+            throw new RuntimeException("Usuário não encontrado!");
+        }
+
+        ModelUsuario usuario = usuarioOpt.get();
 
         // 4. Criar empréstimo
         ModelEmprestimos emprestimo = new ModelEmprestimos();
