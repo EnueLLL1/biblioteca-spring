@@ -3,7 +3,7 @@
 ![Spring Boot Roadmap](https://img.shields.io/badge/Roadmap%20Spring%20Boot-1%2F7-00a86b?style=flat-square&logo=spring&logoColor=white)
 
 Uma aplicação simples de biblioteca desenvolvida com **Spring Boot** para treinar e aprender conceitos essenciais de desenvolvimento Java.  
-Este projeto é o **Projeto #1 de 7** do meu [**Roadmap de Aprendizado em Spring Boot**](https://github.com/EnueLLL1/EnueLLL1/blob/main/ROADMAP.md), onde construo aplicações reais com complexidade progressiva — do básico ao avançado — com foco em **boas práticas, arquitetura limpa. 
+Este projeto é o **Projeto #1 de 7** do meu [**Roadmap de Aprendizado em Spring Boot**](https://github.com/EnueLLL1/EnueLLL1/blob/main/ROADMAP.md), onde construo aplicações reais com complexidade progressiva — do básico ao avançado — com foco em **boas práticas, arquitetura limpa**. 
 
 
 ---
