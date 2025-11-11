@@ -24,8 +24,7 @@ public class UsuarioService {
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
-                usuario.getTelefone()
-        );
+                usuario.getTelefone());
     }
 
     // ========================================

@@ -55,7 +55,7 @@ public class ModelBiblioteca {
     private String descricaoLivro;
 
     // Definindo a coluna isbnLivro da tabela "livros_db"
-    // Definindo que ela pode ter um ISBN com 20 Char, e não pode ser NULO nem Vazio
+    // Definindo que ela pode ter um ISBN com 20 Char, e não pode ser NULO nem Vazio]
     @ISBN
     @NotBlank(message = "O ISBN não pode estar em branco")
     @Column(name = "isbn", unique = true, length = 20, nullable = false)
