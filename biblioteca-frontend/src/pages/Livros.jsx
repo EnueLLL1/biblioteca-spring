@@ -46,6 +46,22 @@ export default function Livros() {
     }
   }
 
+  // Função para validar checksum do ISBN-13
+  const validarISBN13 = (isbn) => {
+    if (isbn.length !== 13) return false
+
+    let soma = 0
+    for (let i = 0; i < 12; i++) {
+      const digito = parseInt(isbn[i])
+      soma += digito * (i % 2 === 0 ? 1 : 3)
+    }
+
+    const digitoVerificacao = (10 - (soma % 10)) % 10
+    const ultimoDigito = parseInt(isbn[12])
+
+    return digitoVerificacao === ultimoDigito
+  }
+
   const validateForm = () => {
     const newErrors = {}
 
@@ -74,13 +90,15 @@ export default function Livros() {
       newErrors.descricaoLivro = 'Descrição é obrigatória'
     }
 
-    // ISBN - obrigatório, deve ser numérico e ter 13 dígitos
+    // ISBN - obrigatório, deve ser válido (formato ISBN-13 com checksum)
     if (!novoLivro.isbnLivro || novoLivro.isbnLivro.trim() === '') {
       newErrors.isbnLivro = 'ISBN é obrigatório'
     } else {
       const isbn = novoLivro.isbnLivro.trim()
       if (!/^\d{13}$/.test(isbn)) {
         newErrors.isbnLivro = 'ISBN deve ter exatamente 13 dígitos numéricos'
+      } else if (!validarISBN13(isbn)) {
+        newErrors.isbnLivro = 'ISBN inválido (checksum incorreto)'
       }
     }
 
