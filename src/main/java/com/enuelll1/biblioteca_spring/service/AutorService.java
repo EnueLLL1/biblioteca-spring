@@ -1,20 +1,24 @@
 package com.enuelll1.biblioteca_spring.service;
 
 import com.enuelll1.biblioteca_spring.dto.AutorDTO;
+import com.enuelll1.biblioteca_spring.exception.BibliotecaException;
+import com.enuelll1.biblioteca_spring.exception.EntityAlreadyExistsException;
+import com.enuelll1.biblioteca_spring.exception.EntityNotFoundException;
 import com.enuelll1.biblioteca_spring.model.ModelAutor;
 import com.enuelll1.biblioteca_spring.repository.AutorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AutorService {
 
-    @Autowired
-    private AutorRepository autorRepository;
+    private final AutorRepository autorRepository;
+
+    public AutorService(AutorRepository autorRepository) {
+        this.autorRepository = autorRepository;
+    }
 
     // ========================================
     // CONVERTER ENTITY → DTO
@@ -30,16 +34,16 @@ public class AutorService {
     // ========================================
     // CRIAR AUTOR
     // ========================================
-    public AutorDTO criar(String nome, String nacionalidade) {
+    public AutorDTO criar(AutorDTO autorDTO) {
         // 1. Validar se nome já existe
-        if (autorRepository.existsByAutorLivro(nome)) {
-            throw new RuntimeException("Autor já cadastrado!");
+        if (autorRepository.existsByAutorLivro(autorDTO.getAutorLivro())) {
+            throw new EntityAlreadyExistsException("Autor", "nome", autorDTO.getAutorLivro());
         }
 
         // 2. Criar entidade
         ModelAutor autor = new ModelAutor();
-        autor.setAutorLivro(nome);
-        autor.setAutorNacionalidade(nacionalidade);
+        autor.setAutorLivro(autorDTO.getAutorLivro());
+        autor.setAutorNacionalidade(autorDTO.getAutorNacionalidade());
 
         // 3. Salvar
         ModelAutor salvo = autorRepository.save(autor);
@@ -54,7 +58,7 @@ public class AutorService {
     public List<AutorDTO> listar() {
         return autorRepository.findAll().stream()
                 .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // ========================================
@@ -63,7 +67,7 @@ public class AutorService {
     public AutorDTO buscarPorId(Long id) {
         Optional<ModelAutor> autorOpt = autorRepository.findById(id);
         if (autorOpt.isEmpty()) {
-            throw new RuntimeException("Autor não encontrado!");
+            throw new EntityNotFoundException("Autor", id);
         }
         return converterParaDTO(autorOpt.get());
     }
@@ -74,7 +78,7 @@ public class AutorService {
     public List<AutorDTO> buscarPorNome(String nome) {
         return autorRepository.findByAutorLivroContaining(nome).stream()
                 .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // ========================================
@@ -84,13 +88,13 @@ public class AutorService {
         // 1. Verificar se autor existe
         Optional<ModelAutor> autorOpt = autorRepository.findById(id);
         if (autorOpt.isEmpty()) {
-            throw new RuntimeException("Autor não encontrado!");
+            throw new EntityNotFoundException("Autor", id);
         }
 
         // 2. Verificar se autor tem livros associados
         ModelAutor autor = autorOpt.get();
         if (!autor.getLivros().isEmpty()) {
-            throw new RuntimeException("Não é possível deletar autor com livros associados!");
+            throw new BibliotecaException("Não é possível deletar autor com livros associados!");
         }
 
         // 3. Deletar

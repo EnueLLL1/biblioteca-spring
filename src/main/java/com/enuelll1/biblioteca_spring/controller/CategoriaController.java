@@ -2,7 +2,6 @@ package com.enuelll1.biblioteca_spring.controller;
 
 import com.enuelll1.biblioteca_spring.dto.CategoriaDTO;
 import com.enuelll1.biblioteca_spring.service.CategoriaService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,16 +13,19 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class CategoriaController {
 
-    @Autowired
-    private CategoriaService categoriaService;
+    private final CategoriaService categoriaService;
+
+    public CategoriaController(CategoriaService categoriaService) {
+        this.categoriaService = categoriaService;
+    }
 
     // ========================================
     // CRIAR CATEGORIA
     // ========================================
     @PostMapping
-    public ResponseEntity<?> criar(@RequestParam String nome) {
+    public ResponseEntity<Object> criar(@RequestBody CategoriaDTO categoriaDTO) {
         try {
-            CategoriaDTO categoria = categoriaService.criar(nome);
+            CategoriaDTO categoria = categoriaService.criar(categoriaDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(categoria);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -47,7 +49,7 @@ public class CategoriaController {
     // BUSCAR CATEGORIA POR ID
     // ========================================
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Object> buscarPorId(@PathVariable Long id) {
         try {
             CategoriaDTO categoria = categoriaService.buscarPorId(id);
             return ResponseEntity.ok(categoria);
@@ -60,7 +62,7 @@ public class CategoriaController {
     // DELETAR CATEGORIA
     // ========================================
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletar(@PathVariable Long id) {
+    public ResponseEntity<String> deletar(@PathVariable Long id) {
         try {
             categoriaService.deletar(id);
             return ResponseEntity.noContent().build();

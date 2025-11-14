@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api'
+const API_URL = '/api'
 
 // ========================================
 // LIVROS
@@ -53,11 +53,15 @@ export const autoresAPI = {
     return response.json()
   },
 
-  criar: async (nome, nacionalidade) => {
-    const response = await fetch(
-      `${API_URL}/autores?nome=${nome}&nacionalidade=${nacionalidade}`,
-      { method: 'POST' }
-    )
+  criar: async (autor) => {
+    const response = await fetch(`${API_URL}/autores`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        autorLivro: autor.autorLivro,
+        autorNacionalidade: autor.autorNacionalidade
+      }),
+    })
     return response.json()
   },
 
@@ -77,9 +81,13 @@ export const categoriasAPI = {
     return response.json()
   },
 
-  criar: async nome => {
-    const response = await fetch(`${API_URL}/categorias?nome=${nome}`, {
+  criar: async (categoria) => {
+    const response = await fetch(`${API_URL}/categorias`, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nomeCategoria: categoria.nomeCategoria
+      }),
     })
     return response.json()
   },
@@ -100,9 +108,13 @@ export const generosAPI = {
     return response.json()
   },
 
-  criar: async nome => {
-    const response = await fetch(`${API_URL}/generos?nome=${nome}`, {
+  criar: async (genero) => {
+    const response = await fetch(`${API_URL}/generos`, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nomeGenero: genero.nomeGenero
+      }),
     })
     return response.json()
   },
@@ -117,13 +129,16 @@ export const usuariosAPI = {
     return response.json()
   },
 
-  criar: async (nome, email, telefone) => {
-    const response = await fetch(
-      `${API_URL}/usuarios?nome=${nome}&email=${email}&telefone=${
-        telefone || ''
-      }`,
-      { method: 'POST' }
-    )
+  criar: async (usuario) => {
+    const response = await fetch(`${API_URL}/usuarios`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: usuario.nome,
+        email: usuario.email,
+        telefone: usuario.telefone
+      }),
+    })
     return response.json()
   },
 }
@@ -132,11 +147,15 @@ export const usuariosAPI = {
 // EMPRÉSTIMOS
 // ========================================
 export const emprestimosAPI = {
-  criar: async (livroId, usuarioId) => {
-    const response = await fetch(
-      `${API_URL}/emprestimos?livroId=${livroId}&usuarioId=${usuarioId}`,
-      { method: 'POST' }
-    )
+  criar: async (emprestimo) => {
+    const response = await fetch(`${API_URL}/emprestimos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        livroId: emprestimo.livroId,
+        usuarioId: emprestimo.usuarioId
+      }),
+    })
     return response.json()
   },
 

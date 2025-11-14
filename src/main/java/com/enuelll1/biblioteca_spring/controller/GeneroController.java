@@ -2,7 +2,6 @@ package com.enuelll1.biblioteca_spring.controller;
 
 import com.enuelll1.biblioteca_spring.dto.GeneroDTO;
 import com.enuelll1.biblioteca_spring.service.GeneroService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,16 +13,19 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class GeneroController {
 
-    @Autowired
-    private GeneroService generoService;
+    private final GeneroService generoService;
+
+    public GeneroController(GeneroService generoService) {
+        this.generoService = generoService;
+    }
 
     // ========================================
     // CRIAR GÊNERO
     // ========================================
     @PostMapping
-    public ResponseEntity<?> criar(@RequestParam String nome) {
+    public ResponseEntity<Object> criar(@RequestBody GeneroDTO generoDTO) {
         try {
-            GeneroDTO genero = generoService.criar(nome);
+            GeneroDTO genero = generoService.criar(generoDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(genero);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -47,7 +49,7 @@ public class GeneroController {
     // BUSCAR GÊNERO POR ID
     // ========================================
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Object> buscarPorId(@PathVariable Long id) {
         try {
             GeneroDTO genero = generoService.buscarPorId(id);
             return ResponseEntity.ok(genero);
@@ -60,7 +62,7 @@ public class GeneroController {
     // DELETAR GÊNERO
     // ========================================
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletar(@PathVariable Long id) {
+    public ResponseEntity<String> deletar(@PathVariable Long id) {
         try {
             generoService.deletar(id);
             return ResponseEntity.noContent().build();

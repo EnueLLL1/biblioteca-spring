@@ -2,31 +2,31 @@ package com.enuelll1.biblioteca_spring.controller;
 
 import com.enuelll1.biblioteca_spring.dto.EmprestimoDTO;
 import com.enuelll1.biblioteca_spring.service.EmprestimoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/emprestimos")
 @CrossOrigin(origins = "*")
 public class EmprestimoController {
 
-    @Autowired
-    private EmprestimoService emprestimoService;
+    private final EmprestimoService emprestimoService;
+
+    public EmprestimoController(EmprestimoService emprestimoService) {
+        this.emprestimoService = emprestimoService;
+    }
 
     // ========================================
     // CRIAR EMPRÉSTIMO
     // ========================================
     @PostMapping
-    public ResponseEntity<?> criarEmprestimo(
-        @RequestParam Long livroId,
-        @RequestParam Long usuarioId
-    ) {
+    public ResponseEntity<Object> criar(@RequestBody Map<String, Long> dados) {
         try {
-            EmprestimoDTO emprestimo = emprestimoService.criarEmprestimo(livroId, usuarioId);
+            EmprestimoDTO emprestimo = emprestimoService.criarEmprestimo(dados.get("livroId"), dados.get("usuarioId"));
             return ResponseEntity.status(HttpStatus.CREATED).body(emprestimo);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -37,7 +37,7 @@ public class EmprestimoController {
     // DEVOLVER LIVRO
     // ========================================
     @PostMapping("/{id}/devolver")
-    public ResponseEntity<?> devolverLivro(@PathVariable Long id) {
+    public ResponseEntity<Object> devolverLivro(@PathVariable Long id) {
         try {
             EmprestimoDTO emprestimo = emprestimoService.devolverLivro(id);
             return ResponseEntity.ok(emprestimo);

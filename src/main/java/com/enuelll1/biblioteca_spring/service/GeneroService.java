@@ -1,20 +1,24 @@
 package com.enuelll1.biblioteca_spring.service;
 
 import com.enuelll1.biblioteca_spring.dto.GeneroDTO;
+import com.enuelll1.biblioteca_spring.exception.BibliotecaException;
+import com.enuelll1.biblioteca_spring.exception.EntityAlreadyExistsException;
+import com.enuelll1.biblioteca_spring.exception.EntityNotFoundException;
 import com.enuelll1.biblioteca_spring.model.Genero;
 import com.enuelll1.biblioteca_spring.repository.GeneroRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class GeneroService {
 
-    @Autowired
-    private GeneroRepository generoRepository;
+    private final GeneroRepository generoRepository;
+
+    public GeneroService(GeneroRepository generoRepository) {
+        this.generoRepository = generoRepository;
+    }
 
     // ========================================
     // CONVERTER ENTITY → DTO
@@ -29,15 +33,15 @@ public class GeneroService {
     // ========================================
     // CRIAR GÊNERO
     // ========================================
-    public GeneroDTO criar(String nome) {
+    public GeneroDTO criar(GeneroDTO generoDTO) {
         // 1. Validar se nome já existe
-        if (generoRepository.existsByNomeGenero(nome)) {
-            throw new RuntimeException("Gênero já cadastrado!");
+        if (generoRepository.existsByNomeGenero(generoDTO.getNomeGenero())) {
+            throw new EntityAlreadyExistsException("Gênero", "nome", generoDTO.getNomeGenero());
         }
 
         // 2. Criar entidade
         Genero genero = new Genero();
-        genero.setNomeGenero(nome);
+        genero.setNomeGenero(generoDTO.getNomeGenero());
 
         // 3. Salvar
         Genero salvo = generoRepository.save(genero);
@@ -47,12 +51,12 @@ public class GeneroService {
     }
 
     // ========================================
-    // LISTAR TODOS
+    // LISTAR TODOS OS GÊNEROS
     // ========================================
     public List<GeneroDTO> listar() {
         return generoRepository.findAll().stream()
                 .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // ========================================
@@ -61,7 +65,7 @@ public class GeneroService {
     public GeneroDTO buscarPorId(Long id) {
         Optional<Genero> generoOpt = generoRepository.findById(id);
         if (generoOpt.isEmpty()) {
-            throw new RuntimeException("Gênero não encontrado!");
+            throw new EntityNotFoundException("Gênero", id);
         }
         return converterParaDTO(generoOpt.get());
     }
@@ -73,13 +77,13 @@ public class GeneroService {
         // 1. Verificar se gênero existe
         Optional<Genero> generoOpt = generoRepository.findById(id);
         if (generoOpt.isEmpty()) {
-            throw new RuntimeException("Gênero não encontrado!");
+            throw new EntityNotFoundException("Gênero", id);
         }
 
         // 2. Verificar se gênero tem livros associados
         Genero genero = generoOpt.get();
         if (!genero.getLivros().isEmpty()) {
-            throw new RuntimeException("Não é possível deletar gênero com livros associados!");
+            throw new BibliotecaException("Não é possível deletar gênero com livros associados!");
         }
 
         // 3. Deletar

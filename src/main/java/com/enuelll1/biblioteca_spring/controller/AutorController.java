@@ -2,7 +2,6 @@ package com.enuelll1.biblioteca_spring.controller;
 
 import com.enuelll1.biblioteca_spring.dto.AutorDTO;
 import com.enuelll1.biblioteca_spring.service.AutorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,19 +13,19 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class AutorController {
 
-    @Autowired
-    private AutorService autorService;
+    private final AutorService autorService;
+
+    public AutorController(AutorService autorService) {
+        this.autorService = autorService;
+    }
 
     // ========================================
     // CRIAR AUTOR
     // ========================================
     @PostMapping
-    public ResponseEntity<?> criar(
-        @RequestParam String nome,
-        @RequestParam String nacionalidade
-    ) {
+    public ResponseEntity<Object> criar(@RequestBody AutorDTO autorDTO) {
         try {
-            AutorDTO autor = autorService.criar(nome, nacionalidade);
+            AutorDTO autor = autorService.criar(autorDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(autor);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -50,7 +49,7 @@ public class AutorController {
     // BUSCAR AUTOR POR ID
     // ========================================
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Object> buscarPorId(@PathVariable Long id) {
         try {
             AutorDTO autor = autorService.buscarPorId(id);
             return ResponseEntity.ok(autor);
@@ -76,7 +75,7 @@ public class AutorController {
     // DELETAR AUTOR
     // ========================================
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletar(@PathVariable Long id) {
+    public ResponseEntity<String> deletar(@PathVariable Long id) {
         try {
             autorService.deletar(id);
             return ResponseEntity.noContent().build();

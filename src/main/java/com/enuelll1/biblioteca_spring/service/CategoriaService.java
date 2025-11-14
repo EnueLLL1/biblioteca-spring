@@ -1,20 +1,24 @@
 package com.enuelll1.biblioteca_spring.service;
 
 import com.enuelll1.biblioteca_spring.dto.CategoriaDTO;
+import com.enuelll1.biblioteca_spring.exception.BibliotecaException;
+import com.enuelll1.biblioteca_spring.exception.EntityAlreadyExistsException;
+import com.enuelll1.biblioteca_spring.exception.EntityNotFoundException;
 import com.enuelll1.biblioteca_spring.model.Categoria;
 import com.enuelll1.biblioteca_spring.repository.CategoriaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoriaService {
 
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    private final CategoriaRepository categoriaRepository;
+
+    public CategoriaService(CategoriaRepository categoriaRepository) {
+        this.categoriaRepository = categoriaRepository;
+    }
 
     // ========================================
     // CONVERTER ENTITY → DTO
@@ -29,15 +33,15 @@ public class CategoriaService {
     // ========================================
     // CRIAR CATEGORIA
     // ========================================
-    public CategoriaDTO criar(String nome) {
+    public CategoriaDTO criar(CategoriaDTO categoriaDTO) {
         // 1. Validar se nome já existe
-        if (categoriaRepository.existsByNomeCategoria(nome)) {
-            throw new RuntimeException("Categoria já cadastrada!");
+        if (categoriaRepository.existsByNomeCategoria(categoriaDTO.getNomeCategoria())) {
+            throw new EntityAlreadyExistsException("Categoria", "nome", categoriaDTO.getNomeCategoria());
         }
 
         // 2. Criar entidade
         Categoria categoria = new Categoria();
-        categoria.setNomeCategoria(nome);
+        categoria.setNomeCategoria(categoriaDTO.getNomeCategoria());
 
         // 3. Salvar
         Categoria salva = categoriaRepository.save(categoria);
@@ -47,12 +51,12 @@ public class CategoriaService {
     }
 
     // ========================================
-    // LISTAR TODOS
+    // LISTAR TODOS AS CATEGORIAS
     // ========================================
     public List<CategoriaDTO> listar() {
         return categoriaRepository.findAll().stream()
                 .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // ========================================
@@ -61,7 +65,7 @@ public class CategoriaService {
     public CategoriaDTO buscarPorId(Long id) {
         Optional<Categoria> categoriaOpt = categoriaRepository.findById(id);
         if (categoriaOpt.isEmpty()) {
-            throw new RuntimeException("Categoria não encontrada!");
+            throw new EntityNotFoundException("Categoria", id);
         }
         return converterParaDTO(categoriaOpt.get());
     }
@@ -73,13 +77,13 @@ public class CategoriaService {
         // 1. Verificar se categoria existe
         Optional<Categoria> categoriaOpt = categoriaRepository.findById(id);
         if (categoriaOpt.isEmpty()) {
-            throw new RuntimeException("Categoria não encontrada!");
+            throw new EntityNotFoundException("Categoria", id);
         }
 
         // 2. Verificar se categoria tem livros associados
         Categoria categoria = categoriaOpt.get();
         if (!categoria.getLivros().isEmpty()) {
-            throw new RuntimeException("Não é possível deletar categoria com livros associados!");
+            throw new BibliotecaException("Não é possível deletar categoria com livros associados!");
         }
 
         // 3. Deletar

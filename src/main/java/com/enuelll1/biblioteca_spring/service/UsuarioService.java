@@ -1,20 +1,24 @@
 package com.enuelll1.biblioteca_spring.service;
 
 import com.enuelll1.biblioteca_spring.dto.UsuarioDTO;
+import com.enuelll1.biblioteca_spring.exception.BibliotecaException;
+import com.enuelll1.biblioteca_spring.exception.EntityAlreadyExistsException;
+import com.enuelll1.biblioteca_spring.exception.EntityNotFoundException;
 import com.enuelll1.biblioteca_spring.model.ModelUsuario;
 import com.enuelll1.biblioteca_spring.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
+
+    public UsuarioService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
 
     // ========================================
     // CONVERTER ENTITY → DTO
@@ -30,17 +34,17 @@ public class UsuarioService {
     // ========================================
     // CRIAR USUARIO
     // ========================================
-    public UsuarioDTO criar(String nome, String email, String telefone) {
+    public UsuarioDTO criar(UsuarioDTO usuarioDTO) {
         // 1. Validar se email já existe
-        if (usuarioRepository.existsByEmail(email)) {
-            throw new RuntimeException("Email já cadastrado!");
+        if (usuarioRepository.existsByEmail(usuarioDTO.getEmail())) {
+            throw new EntityAlreadyExistsException("Usuário", "email", usuarioDTO.getEmail());
         }
 
         // 2. Criar entidade
         ModelUsuario usuario = new ModelUsuario();
-        usuario.setNome(nome);
-        usuario.setEmail(email);
-        usuario.setTelefone(telefone);
+        usuario.setNome(usuarioDTO.getNome());
+        usuario.setEmail(usuarioDTO.getEmail());
+        usuario.setTelefone(usuarioDTO.getTelefone());
 
         // 3. Salvar
         ModelUsuario salvo = usuarioRepository.save(usuario);
@@ -55,7 +59,7 @@ public class UsuarioService {
     public List<UsuarioDTO> listar() {
         return usuarioRepository.findAll().stream()
                 .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // ========================================
@@ -64,7 +68,7 @@ public class UsuarioService {
     public UsuarioDTO buscarPorId(Long id) {
         Optional<ModelUsuario> usuarioOpt = usuarioRepository.findById(id);
         if (usuarioOpt.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado!");
+            throw new EntityNotFoundException("Usuário", id);
         }
         return converterParaDTO(usuarioOpt.get());
     }
@@ -75,7 +79,7 @@ public class UsuarioService {
     public List<UsuarioDTO> buscarPorNome(String nome) {
         return usuarioRepository.findByNomeContaining(nome).stream()
                 .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // ========================================
@@ -84,7 +88,7 @@ public class UsuarioService {
     public UsuarioDTO buscarPorEmail(String email) {
         ModelUsuario usuario = usuarioRepository.findByEmail(email);
         if (usuario == null) {
-            throw new RuntimeException("Usuário não encontrado!");
+            throw new EntityNotFoundException("Usuário com email '" + email + "' não encontrado!");
         }
         return converterParaDTO(usuario);
     }
@@ -96,13 +100,13 @@ public class UsuarioService {
         // 1. Verificar se usuario existe
         Optional<ModelUsuario> usuarioOpt = usuarioRepository.findById(id);
         if (usuarioOpt.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado!");
+            throw new EntityNotFoundException("Usuário", id);
         }
 
         // 2. Verificar se usuario tem empréstimos associados
         ModelUsuario usuario = usuarioOpt.get();
         if (!usuario.getEmprestimos().isEmpty()) {
-            throw new RuntimeException("Não é possível deletar usuário com empréstimos associados!");
+            throw new BibliotecaException("Não é possível deletar usuário com empréstimos associados!");
         }
 
         // 3. Deletar
