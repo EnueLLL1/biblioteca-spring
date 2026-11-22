@@ -24,13 +24,9 @@ public class GeneroController {
     // CRIAR GÊNERO
     // ========================================
     @PostMapping
-    public ResponseEntity<Object> criar(@Valid @RequestBody GeneroDTO generoDTO) {
-        try {
-            GeneroDTO genero = generoService.criar(generoDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(genero);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<GeneroDTO> criar(@Valid @RequestBody GeneroDTO generoDTO) {
+        GeneroDTO genero = generoService.criar(generoDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(genero);
     }
 
     // ========================================
@@ -38,37 +34,23 @@ public class GeneroController {
     // ========================================
     @GetMapping
     public ResponseEntity<List<GeneroDTO>> listar() {
-        try {
-            List<GeneroDTO> generos = generoService.listar();
-            return ResponseEntity.ok(generos);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(generoService.listar());
     }
 
     // ========================================
     // BUSCAR GÊNERO POR ID
     // ========================================
     @GetMapping("/{id}")
-    public ResponseEntity<Object> buscarPorId(@PathVariable Long id) {
-        try {
-            GeneroDTO genero = generoService.buscarPorId(id);
-            return ResponseEntity.ok(genero);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<GeneroDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(generoService.buscarPorId(id));
     }
 
     // ========================================
     // DELETAR GÊNERO
     // ========================================
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable Long id) {
-        try {
-            generoService.deletar(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        generoService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }

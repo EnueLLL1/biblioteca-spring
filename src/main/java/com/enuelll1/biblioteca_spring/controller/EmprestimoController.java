@@ -25,26 +25,17 @@ public class EmprestimoController {
     // CRIAR EMPRÉSTIMO
     // ========================================
     @PostMapping
-    public ResponseEntity<Object> criar(@Valid @RequestBody CriarEmprestimoDTO dados) {
-        try {
-            EmprestimoDTO emprestimo = emprestimoService.criarEmprestimo(dados.getLivroId(), dados.getUsuarioId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(emprestimo);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<EmprestimoDTO> criar(@Valid @RequestBody CriarEmprestimoDTO dados) {
+        EmprestimoDTO emprestimo = emprestimoService.criarEmprestimo(dados.getLivroId(), dados.getUsuarioId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(emprestimo);
     }
 
     // ========================================
     // DEVOLVER LIVRO
     // ========================================
     @PostMapping("/{id}/devolver")
-    public ResponseEntity<Object> devolverLivro(@PathVariable Long id) {
-        try {
-            EmprestimoDTO emprestimo = emprestimoService.devolverLivro(id);
-            return ResponseEntity.ok(emprestimo);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<EmprestimoDTO> devolverLivro(@PathVariable Long id) {
+        return ResponseEntity.ok(emprestimoService.devolverLivro(id));
     }
 
     // ========================================
@@ -52,12 +43,7 @@ public class EmprestimoController {
     // ========================================
     @GetMapping("/ativos")
     public ResponseEntity<List<EmprestimoDTO>> listarAtivos() {
-        try {
-            List<EmprestimoDTO> emprestimos = emprestimoService.listarEmprestimosAtivos();
-            return ResponseEntity.ok(emprestimos);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(emprestimoService.listarEmprestimosAtivos());
     }
 
     // ========================================
@@ -65,12 +51,7 @@ public class EmprestimoController {
     // ========================================
     @GetMapping("/atrasados")
     public ResponseEntity<List<EmprestimoDTO>> listarAtrasados() {
-        try {
-            List<EmprestimoDTO> emprestimos = emprestimoService.listarEmprestimosAtrasados();
-            return ResponseEntity.ok(emprestimos);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(emprestimoService.listarEmprestimosAtrasados());
     }
 
     // ========================================
@@ -78,11 +59,6 @@ public class EmprestimoController {
     // ========================================
     @GetMapping("/usuario/{id}")
     public ResponseEntity<List<EmprestimoDTO>> listarPorUsuario(@PathVariable Long id) {
-        try {
-            List<EmprestimoDTO> emprestimos = emprestimoService.listarPorUsuario(id);
-            return ResponseEntity.ok(emprestimos);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(emprestimoService.listarPorUsuario(id));
     }
 }

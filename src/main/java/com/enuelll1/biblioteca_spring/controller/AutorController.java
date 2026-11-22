@@ -24,13 +24,9 @@ public class AutorController {
     // CRIAR AUTOR
     // ========================================
     @PostMapping
-    public ResponseEntity<Object> criar(@Valid @RequestBody AutorDTO autorDTO) {
-        try {
-            AutorDTO autor = autorService.criar(autorDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(autor);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<AutorDTO> criar(@Valid @RequestBody AutorDTO autorDTO) {
+        AutorDTO autor = autorService.criar(autorDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(autor);
     }
 
     // ========================================
@@ -38,25 +34,15 @@ public class AutorController {
     // ========================================
     @GetMapping
     public ResponseEntity<List<AutorDTO>> listar() {
-        try {
-            List<AutorDTO> autores = autorService.listar();
-            return ResponseEntity.ok(autores);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(autorService.listar());
     }
 
     // ========================================
     // BUSCAR AUTOR POR ID
     // ========================================
     @GetMapping("/{id}")
-    public ResponseEntity<Object> buscarPorId(@PathVariable Long id) {
-        try {
-            AutorDTO autor = autorService.buscarPorId(id);
-            return ResponseEntity.ok(autor);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<AutorDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(autorService.buscarPorId(id));
     }
 
     // ========================================
@@ -64,24 +50,15 @@ public class AutorController {
     // ========================================
     @GetMapping("/buscar")
     public ResponseEntity<List<AutorDTO>> buscarPorNome(@RequestParam String nome) {
-        try {
-            List<AutorDTO> autores = autorService.buscarPorNome(nome);
-            return ResponseEntity.ok(autores);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(autorService.buscarPorNome(nome));
     }
 
     // ========================================
     // DELETAR AUTOR
     // ========================================
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable Long id) {
-        try {
-            autorService.deletar(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        autorService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }

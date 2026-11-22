@@ -2,6 +2,8 @@ package com.enuelll1.biblioteca_spring.service;
 
 import com.enuelll1.biblioteca_spring.dto.LivroDTO;
 import com.enuelll1.biblioteca_spring.dto.CriarLivroDTO;
+import com.enuelll1.biblioteca_spring.exception.EntityAlreadyExistsException;
+import com.enuelll1.biblioteca_spring.exception.EntityNotFoundException;
 import com.enuelll1.biblioteca_spring.model.*;
 import com.enuelll1.biblioteca_spring.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,12 +62,12 @@ public class LivroService {
     public LivroDTO criar(CriarLivroDTO dto) {
         // 1. Validar se ISBN já existe
         if (livroRepository.existsByIsbnLivro(dto.getIsbnLivro())) {
-            throw new RuntimeException("ISBN já cadastrado!");
+            throw new EntityAlreadyExistsException("Livro", "ISBN", dto.getIsbnLivro());
         }
 
         // 2. Buscar autor
         ModelAutor autor = autorRepository.findById(dto.getIdAutor())
-                .orElseThrow(() -> new RuntimeException("Autor não encontrado!"));
+                .orElseThrow(() -> new EntityNotFoundException("Autor", dto.getIdAutor()));
 
         // 3. Criar entidade
         ModelBiblioteca livro = new ModelBiblioteca();
@@ -81,7 +83,7 @@ public class LivroService {
         if (dto.getIdCategorias() != null && !dto.getIdCategorias().isEmpty()) {
             Set<Categoria> categorias = dto.getIdCategorias().stream()
                     .map(id -> categoriaRepository.findById(id)
-                            .orElseThrow(() -> new RuntimeException("Categoria não encontrada: " + id)))
+                            .orElseThrow(() -> new EntityNotFoundException("Categoria", id)))
                     .collect(Collectors.toSet());
             livro.setCategorias(categorias);
         }
@@ -90,7 +92,7 @@ public class LivroService {
         if (dto.getIdGeneros() != null && !dto.getIdGeneros().isEmpty()) {
             Set<Genero> generos = dto.getIdGeneros().stream()
                     .map(id -> generoRepository.findById(id)
-                            .orElseThrow(() -> new RuntimeException("Gênero não encontrado: " + id)))
+                            .orElseThrow(() -> new EntityNotFoundException("Gênero", id)))
                     .collect(Collectors.toSet());
             livro.setGeneros(generos);
         }
@@ -116,7 +118,7 @@ public class LivroService {
     // ========================================
     public LivroDTO buscarPorId(Long id) {
         ModelBiblioteca livro = livroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado!"));
+                .orElseThrow(() -> new EntityNotFoundException("Livro", id));
         return converterParaDTO(livro);
     }
 
@@ -143,7 +145,7 @@ public class LivroService {
     // ========================================
     public void deletar(Long id) {
         if (!livroRepository.existsById(id)) {
-            throw new RuntimeException("Livro não encontrado!");
+            throw new EntityNotFoundException("Livro", id);
         }
         livroRepository.deleteById(id);
     }
@@ -154,18 +156,18 @@ public class LivroService {
     public LivroDTO atualizar(Long id, CriarLivroDTO dto) {
         // 1. Buscar livro existente
         ModelBiblioteca livro = livroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado!"));
+                .orElseThrow(() -> new EntityNotFoundException("Livro", id));
 
         // 2. Validar ISBN se foi alterado
         if (!livro.getIsbnLivro().equals(dto.getIsbnLivro()) &&
             livroRepository.existsByIsbnLivro(dto.getIsbnLivro())) {
-            throw new RuntimeException("ISBN já cadastrado!");
+            throw new EntityAlreadyExistsException("Livro", "ISBN", dto.getIsbnLivro());
         }
 
         // 3. Buscar autor se foi alterado
         if (!livro.getAutor().getIdAutor().equals(dto.getIdAutor())) {
             ModelAutor autor = autorRepository.findById(dto.getIdAutor())
-                    .orElseThrow(() -> new RuntimeException("Autor não encontrado!"));
+                    .orElseThrow(() -> new EntityNotFoundException("Autor", dto.getIdAutor()));
             livro.setAutor(autor);
         }
 
@@ -181,7 +183,7 @@ public class LivroService {
         if (dto.getIdCategorias() != null) {
             Set<Categoria> categorias = dto.getIdCategorias().stream()
                     .map(catId -> categoriaRepository.findById(catId)
-                            .orElseThrow(() -> new RuntimeException("Categoria não encontrada: " + catId)))
+                            .orElseThrow(() -> new EntityNotFoundException("Categoria", catId)))
                     .collect(Collectors.toSet());
             livro.setCategorias(categorias);
         }
@@ -190,7 +192,7 @@ public class LivroService {
         if (dto.getIdGeneros() != null) {
             Set<Genero> generos = dto.getIdGeneros().stream()
                     .map(genId -> generoRepository.findById(genId)
-                            .orElseThrow(() -> new RuntimeException("Gênero não encontrado: " + genId)))
+                            .orElseThrow(() -> new EntityNotFoundException("Gênero", genId)))
                     .collect(Collectors.toSet());
             livro.setGeneros(generos);
         }
@@ -206,7 +208,7 @@ public class LivroService {
     public List<LivroDTO> buscarPorAutor(Long idAutor) {
         // Verificar se autor existe
         if (!autorRepository.existsById(idAutor)) {
-            throw new RuntimeException("Autor não encontrado!");
+            throw new EntityNotFoundException("Autor", idAutor);
         }
 
         return livroRepository.findByAutorIdAutor(idAutor).stream()
@@ -220,7 +222,7 @@ public class LivroService {
     public List<LivroDTO> buscarPorCategoria(Long idCategoria) {
         // Verificar se categoria existe
         if (!categoriaRepository.existsById(idCategoria)) {
-            throw new RuntimeException("Categoria não encontrada!");
+            throw new EntityNotFoundException("Categoria", idCategoria);
         }
 
         return livroRepository.findByCategoriasIdCategoria(idCategoria).stream()
@@ -234,7 +236,7 @@ public class LivroService {
     public List<LivroDTO> buscarPorGenero(Long idGenero) {
         // Verificar se gênero existe
         if (!generoRepository.existsById(idGenero)) {
-            throw new RuntimeException("Gênero não encontrado!");
+            throw new EntityNotFoundException("Gênero", idGenero);
         }
 
         return livroRepository.findByGenerosIdGenero(idGenero).stream()

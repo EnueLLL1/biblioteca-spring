@@ -1,6 +1,8 @@
 package com.enuelll1.biblioteca_spring.service;
 
 import com.enuelll1.biblioteca_spring.dto.EmprestimoDTO;
+import com.enuelll1.biblioteca_spring.exception.BibliotecaException;
+import com.enuelll1.biblioteca_spring.exception.EntityNotFoundException;
 import com.enuelll1.biblioteca_spring.model.ModelBiblioteca;
 import com.enuelll1.biblioteca_spring.model.ModelEmprestimos;
 import com.enuelll1.biblioteca_spring.model.ModelUsuario;
@@ -13,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,25 +52,17 @@ public class EmprestimoService {
     @Transactional
     public EmprestimoDTO criarEmprestimo(Long livroId, Long usuarioId) {
         // 1. Validar se livro existe
-        Optional<ModelBiblioteca> livroOpt = livroRepository.findById(livroId);
-        if (livroOpt.isEmpty()) {
-            throw new RuntimeException("Livro não encontrado!");
-        }
-
-        ModelBiblioteca livro = livroOpt.get();
+        ModelBiblioteca livro = livroRepository.findById(livroId)
+                .orElseThrow(() -> new EntityNotFoundException("Livro", livroId));
 
         // 2. Verificar se livro está disponível
         if (!livro.isDisponivel()) {
-            throw new RuntimeException("Livro não está disponível para empréstimo!");
+            throw new BibliotecaException("Livro não está disponível para empréstimo!");
         }
 
         // 3. Validar se usuário existe
-        Optional<ModelUsuario> usuarioOpt = usuarioRepository.findById(usuarioId);
-        if (usuarioOpt.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado!");
-        }
-
-        ModelUsuario usuario = usuarioOpt.get();
+        ModelUsuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário", usuarioId));
 
         // 4. Criar empréstimo
         ModelEmprestimos emprestimo = new ModelEmprestimos();
@@ -92,16 +85,12 @@ public class EmprestimoService {
     @Transactional
     public EmprestimoDTO devolverLivro(Long emprestimoId) {
         // 1. Buscar empréstimo
-        Optional<ModelEmprestimos> emprestimoOpt = emprestimoRepository.findById(emprestimoId);
-        if (emprestimoOpt.isEmpty()) {
-            throw new RuntimeException("Empréstimo não encontrado!");
-        }
-
-        ModelEmprestimos emprestimo = emprestimoOpt.get();
+        ModelEmprestimos emprestimo = emprestimoRepository.findById(emprestimoId)
+                .orElseThrow(() -> new EntityNotFoundException("Empréstimo", emprestimoId));
 
         // 2. Verificar se já foi devolvido
         if (emprestimo.getStatus() == ModelEmprestimos.StatusEmprestimo.DEVOLVIDO) {
-            throw new RuntimeException("Livro já foi devolvido!");
+            throw new BibliotecaException("Livro já foi devolvido!");
         }
 
         // 3. Atualizar status e data

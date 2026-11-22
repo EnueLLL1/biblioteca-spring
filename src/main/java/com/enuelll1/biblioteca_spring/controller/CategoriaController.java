@@ -24,13 +24,9 @@ public class CategoriaController {
     // CRIAR CATEGORIA
     // ========================================
     @PostMapping
-    public ResponseEntity<Object> criar(@Valid @RequestBody CategoriaDTO categoriaDTO) {
-        try {
-            CategoriaDTO categoria = categoriaService.criar(categoriaDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(categoria);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<CategoriaDTO> criar(@Valid @RequestBody CategoriaDTO categoriaDTO) {
+        CategoriaDTO categoria = categoriaService.criar(categoriaDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoria);
     }
 
     // ========================================
@@ -38,37 +34,23 @@ public class CategoriaController {
     // ========================================
     @GetMapping
     public ResponseEntity<List<CategoriaDTO>> listar() {
-        try {
-            List<CategoriaDTO> categorias = categoriaService.listar();
-            return ResponseEntity.ok(categorias);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(categoriaService.listar());
     }
 
     // ========================================
     // BUSCAR CATEGORIA POR ID
     // ========================================
     @GetMapping("/{id}")
-    public ResponseEntity<Object> buscarPorId(@PathVariable Long id) {
-        try {
-            CategoriaDTO categoria = categoriaService.buscarPorId(id);
-            return ResponseEntity.ok(categoria);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<CategoriaDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(categoriaService.buscarPorId(id));
     }
 
     // ========================================
     // DELETAR CATEGORIA
     // ========================================
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable Long id) {
-        try {
-            categoriaService.deletar(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        categoriaService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }
