@@ -72,7 +72,10 @@ export default function CadastrarEmprestimo() {
     setErrors({})
 
     try {
-      await emprestimosAPI.criar(dadosLimpos.idLivro, dadosLimpos.idUsuario)
+      await emprestimosAPI.criar({
+        livroId: dadosLimpos.idLivro,
+        usuarioId: dadosLimpos.idUsuario,
+      })
       alert('✅ Empréstimo criado com sucesso!')
       navigate('/emprestimos')
     } catch (error) {

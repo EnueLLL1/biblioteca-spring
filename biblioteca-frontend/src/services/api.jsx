@@ -1,178 +1,160 @@
 const API_URL = '/api'
 
+async function request(path, options = {}) {
+  const response = await fetch(`${API_URL}${path}`, options)
+
+  if (!response.ok) {
+    let errorData = null
+    try {
+      errorData = await response.json()
+    } catch {
+      // Resposta sem corpo JSON (ex.: proxy indisponível)
+    }
+    const error = new Error(errorData?.message || `Erro HTTP ${response.status}`)
+    error.status = response.status
+    error.response = { status: response.status, data: errorData }
+    throw error
+  }
+
+  if (response.status === 204) {
+    return null
+  }
+
+  return response.json()
+}
+
 // ========================================
 // LIVROS
 // ========================================
 export const livrosAPI = {
-  listarTodos: async () => {
-    const response = await fetch(`${API_URL}/livros`)
-    return response.json()
-  },
+  listarTodos: () => request('/livros'),
 
-  buscarPorId: async id => {
-    const response = await fetch(`${API_URL}/livros/${id}`)
-    return response.json()
-  },
+  buscarPorId: id => request(`/livros/${id}`),
 
-  listarDisponiveis: async () => {
-    const response = await fetch(`${API_URL}/livros/disponiveis`)
-    return response.json()
-  },
+  listarDisponiveis: () => request('/livros/disponiveis'),
 
-  criar: async livro => {
-    const response = await fetch(`${API_URL}/livros`, {
+  criar: livro =>
+    request('/livros', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(livro),
-    })
-    return response.json()
-  },
+    }),
 
-  atualizar: async (id, livro) => {
-    const response = await fetch(`${API_URL}/livros/${id}`, {
+  atualizar: (id, livro) =>
+    request(`/livros/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(livro),
-    })
-    return response.json()
-  },
+    }),
 
-  deletar: async id => {
-    await fetch(`${API_URL}/livros/${id}`, {
+  deletar: id =>
+    request(`/livros/${id}`, {
       method: 'DELETE',
-    })
-  },
+    }),
 }
 
 // ========================================
 // AUTORES
 // ========================================
 export const autoresAPI = {
-  listarTodos: async () => {
-    const response = await fetch(`${API_URL}/autores`)
-    return response.json()
-  },
+  listarTodos: () => request('/autores'),
 
-  criar: async (autor) => {
-    const response = await fetch(`${API_URL}/autores`, {
+  criar: autor =>
+    request('/autores', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         autorLivro: autor.autorLivro,
-        autorNacionalidade: autor.autorNacionalidade
+        autorNacionalidade: autor.autorNacionalidade,
       }),
-    })
-    return response.json()
-  },
+    }),
 
-  deletar: async id => {
-    await fetch(`${API_URL}/autores/${id}`, {
+  deletar: id =>
+    request(`/autores/${id}`, {
       method: 'DELETE',
-    })
-  },
+    }),
 }
 
 // ========================================
 // CATEGORIAS
 // ========================================
 export const categoriasAPI = {
-  listarTodos: async () => {
-    const response = await fetch(`${API_URL}/categorias`)
-    return response.json()
-  },
+  listarTodos: () => request('/categorias'),
 
-  criar: async (categoria) => {
-    const response = await fetch(`${API_URL}/categorias`, {
+  criar: categoria =>
+    request('/categorias', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nomeCategoria: categoria.nomeCategoria
+        nomeCategoria: categoria.nomeCategoria,
       }),
-    })
-    return response.json()
-  },
+    }),
 
-  deletar: async id => {
-    await fetch(`${API_URL}/categorias/${id}`, {
+  deletar: id =>
+    request(`/categorias/${id}`, {
       method: 'DELETE',
-    })
-  },
+    }),
 }
 
 // ========================================
 // GÊNEROS
 // ========================================
 export const generosAPI = {
-  listarTodos: async () => {
-    const response = await fetch(`${API_URL}/generos`)
-    return response.json()
-  },
+  listarTodos: () => request('/generos'),
 
-  criar: async (genero) => {
-    const response = await fetch(`${API_URL}/generos`, {
+  criar: genero =>
+    request('/generos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nomeGenero: genero.nomeGenero
+        nomeGenero: genero.nomeGenero,
       }),
-    })
-    return response.json()
-  },
+    }),
+
+  deletar: id =>
+    request(`/generos/${id}`, {
+      method: 'DELETE',
+    }),
 }
 
 // ========================================
 // USUÁRIOS
 // ========================================
 export const usuariosAPI = {
-  listarTodos: async () => {
-    const response = await fetch(`${API_URL}/usuarios`)
-    return response.json()
-  },
+  listarTodos: () => request('/usuarios'),
 
-  criar: async (usuario) => {
-    const response = await fetch(`${API_URL}/usuarios`, {
+  criar: usuario =>
+    request('/usuarios', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         nome: usuario.nome,
         email: usuario.email,
-        telefone: usuario.telefone
+        telefone: usuario.telefone,
       }),
-    })
-    return response.json()
-  },
+    }),
 }
 
 // ========================================
 // EMPRÉSTIMOS
 // ========================================
 export const emprestimosAPI = {
-  criar: async (emprestimo) => {
-    const response = await fetch(`${API_URL}/emprestimos`, {
+  criar: emprestimo =>
+    request('/emprestimos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         livroId: emprestimo.livroId,
-        usuarioId: emprestimo.usuarioId
+        usuarioId: emprestimo.usuarioId,
       }),
-    })
-    return response.json()
-  },
+    }),
 
-  devolver: async id => {
-    const response = await fetch(`${API_URL}/emprestimos/${id}/devolver`, {
+  devolver: id =>
+    request(`/emprestimos/${id}/devolver`, {
       method: 'POST',
-    })
-    return response.json()
-  },
+    }),
 
-  listarAtivos: async () => {
-    const response = await fetch(`${API_URL}/emprestimos/ativos`)
-    return response.json()
-  },
+  listarAtivos: () => request('/emprestimos/ativos'),
 
-  listarAtrasados: async () => {
-    const response = await fetch(`${API_URL}/emprestimos/atrasados`)
-    return response.json()
-  },
+  listarAtrasados: () => request('/emprestimos/atrasados'),
 }
