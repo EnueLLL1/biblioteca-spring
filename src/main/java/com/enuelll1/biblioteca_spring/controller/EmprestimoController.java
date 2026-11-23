@@ -1,13 +1,14 @@
 package com.enuelll1.biblioteca_spring.controller;
 
+import com.enuelll1.biblioteca_spring.dto.CriarEmprestimoDTO;
 import com.enuelll1.biblioteca_spring.dto.EmprestimoDTO;
 import com.enuelll1.biblioteca_spring.service.EmprestimoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/emprestimos")
@@ -24,9 +25,9 @@ public class EmprestimoController {
     // CRIAR EMPRÉSTIMO
     // ========================================
     @PostMapping
-    public ResponseEntity<Object> criar(@RequestBody Map<String, Long> dados) {
+    public ResponseEntity<Object> criar(@Valid @RequestBody CriarEmprestimoDTO dados) {
         try {
-            EmprestimoDTO emprestimo = emprestimoService.criarEmprestimo(dados.get("livroId"), dados.get("usuarioId"));
+            EmprestimoDTO emprestimo = emprestimoService.criarEmprestimo(dados.getLivroId(), dados.getUsuarioId());
             return ResponseEntity.status(HttpStatus.CREATED).body(emprestimo);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

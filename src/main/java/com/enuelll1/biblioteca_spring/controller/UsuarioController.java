@@ -2,6 +2,7 @@ package com.enuelll1.biblioteca_spring.controller;
 
 import com.enuelll1.biblioteca_spring.dto.UsuarioDTO;
 import com.enuelll1.biblioteca_spring.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class UsuarioController {
     // CRIAR USUARIO
     // ========================================
     @PostMapping
-    public ResponseEntity<Object> criar(@RequestBody UsuarioDTO usuarioDTO) {
+    public ResponseEntity<Object> criar(@Valid @RequestBody UsuarioDTO usuarioDTO) {
         try {
             UsuarioDTO usuario = usuarioService.criar(usuarioDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(usuario);

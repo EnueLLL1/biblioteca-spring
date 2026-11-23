@@ -2,6 +2,7 @@ package com.enuelll1.biblioteca_spring.controller;
 
 import com.enuelll1.biblioteca_spring.dto.AutorDTO;
 import com.enuelll1.biblioteca_spring.service.AutorService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class AutorController {
     // CRIAR AUTOR
     // ========================================
     @PostMapping
-    public ResponseEntity<Object> criar(@RequestBody AutorDTO autorDTO) {
+    public ResponseEntity<Object> criar(@Valid @RequestBody AutorDTO autorDTO) {
         try {
             AutorDTO autor = autorService.criar(autorDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(autor);

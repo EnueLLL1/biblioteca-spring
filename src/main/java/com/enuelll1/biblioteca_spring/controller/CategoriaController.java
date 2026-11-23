@@ -2,6 +2,7 @@ package com.enuelll1.biblioteca_spring.controller;
 
 import com.enuelll1.biblioteca_spring.dto.CategoriaDTO;
 import com.enuelll1.biblioteca_spring.service.CategoriaService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class CategoriaController {
     // CRIAR CATEGORIA
     // ========================================
     @PostMapping
-    public ResponseEntity<Object> criar(@RequestBody CategoriaDTO categoriaDTO) {
+    public ResponseEntity<Object> criar(@Valid @RequestBody CategoriaDTO categoriaDTO) {
         try {
             CategoriaDTO categoria = categoriaService.criar(categoriaDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(categoria);

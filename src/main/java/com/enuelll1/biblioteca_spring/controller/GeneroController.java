@@ -2,6 +2,7 @@ package com.enuelll1.biblioteca_spring.controller;
 
 import com.enuelll1.biblioteca_spring.dto.GeneroDTO;
 import com.enuelll1.biblioteca_spring.service.GeneroService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class GeneroController {
     // CRIAR GÊNERO
     // ========================================
     @PostMapping
-    public ResponseEntity<Object> criar(@RequestBody GeneroDTO generoDTO) {
+    public ResponseEntity<Object> criar(@Valid @RequestBody GeneroDTO generoDTO) {
         try {
             GeneroDTO genero = generoService.criar(generoDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(genero);
