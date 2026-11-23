@@ -11,6 +11,18 @@ Aplicação Full-Stack para gestão de acervo bibliográfico e empréstimos, con
 
 ---
 
+## Telas da Aplicação
+
+| Painel Geral (Tema Escuro) | Catálogo de Livros (Tema Claro) |
+| :---: | :---: |
+| ![Painel da Biblioteca](docs/images/01_painel_dark.png) | ![Catálogo de Livros](docs/images/02_livros_light.png) |
+
+| Controle de Empréstimos | Gestão de Leitores |
+| :---: | :---: |
+| ![Empréstimos](docs/images/03_emprestimos_dark.png) | ![Usuários](docs/images/04_usuarios_dark.png) |
+
+---
+
 ## Principais Recursos
 
 - **Arquitetura em Camadas:** separação clara entre `Controller`, `Service`, `Repository` e **DTOs** com Bean Validation (`@Valid`).
@@ -28,7 +40,7 @@ Aplicação Full-Stack para gestão de acervo bibliográfico e empréstimos, con
 | Camada | Tecnologias |
 | :--- | :--- |
 | **Back-End** | Java 21, Spring Boot 3.5.7, Spring Web, Spring Data JPA, Bean Validation, Springdoc OpenAPI, Lombok, Maven |
-| **Front-End** | React, Vite, Tailwind CSS |
+| **Front-End** | React 19, Vite, Tailwind CSS v4 |
 | **Banco de Dados** | PostgreSQL 16 (produção/dev) · H2 em memória (testes) |
 | **Qualidade & Infra** | JUnit 5, Mockito, MockMvc, Vitest, React Testing Library, Docker, Docker Compose, GitHub Actions |
 
