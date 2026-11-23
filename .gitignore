@@ -35,3 +35,8 @@ build/
 ### Front-end ###
 biblioteca-frontend/node_modules/
 biblioteca-frontend/dist/
+
+### Environment ###
+.env
+.env.*
+!.env.example
