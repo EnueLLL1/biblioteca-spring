@@ -1,15 +1,7 @@
 /**
- * Sistema de validação frontend baseado no CriarLivroDTO do backend
- * Mantém coerência com as validações do Spring Boot e Hibernate
+ * Sistema de validação frontend alinhado aos DTOs e entidades JPA do backend.
  */
 
-// ========================================
-// VALIDAÇÕES INDIVIDUAIS (equivalentes às annotations)
-// ========================================
-
-/**
- * Validação @NotBlank - campo não pode estar vazio após trim
- */
 export const validarNotBlank = (valor, campo) => {
   if (!valor || valor.toString().trim() === '') {
     return `${campo} não pode estar em branco`
@@ -17,122 +9,124 @@ export const validarNotBlank = (valor, campo) => {
   return null
 }
 
-/**
- * Validação @NotNull - campo não pode ser nulo
- */
 export const validarNotNull = (valor, campo) => {
-  if (valor === null || valor === undefined) {
+  if (valor === null || valor === undefined || valor === '') {
     return `${campo} não pode ser nulo`
   }
   return null
 }
 
-/**
- * Validação @Min/@Max para números inteiros
- */
-export const validarMinMax = (valor, min, max, campo) => {
-  const num = parseInt(valor)
-  if (isNaN(num)) {
-    return `${campo} deve ser um número válido`
-  }
-  if (num < min) {
-    return `${campo} deve ser maior que ${min}`
-  }
-  if (num > max) {
-    return `${campo} deve ser menor que ${max}`
+export const validarMaxLength = (valor, max, campo) => {
+  if (valor && valor.toString().trim().length > max) {
+    return `${campo} deve ter no máximo ${max} caracteres`
   }
   return null
 }
 
-// ========================================
-// VALIDAÇÃO ISBN COMPLETA (equivalente ao @ISBN do Hibernate)
-// ========================================
+export const validarMinMax = (valor, min, max, campo) => {
+  if (valor === null || valor === undefined || String(valor).trim() === '') {
+    return `${campo} deve ser um número válido`
+  }
+  const str = String(valor).trim()
+  if (!/^-?\d+$/.test(str)) {
+    return `${campo} deve ser um número válido`
+  }
+  const num = parseInt(str, 10)
+  if (num < min) {
+    return `${campo} deve ser no mínimo ${min}`
+  }
+  if (num > max) {
+    return `${campo} deve ser no máximo ${max}`
+  }
+  return null
+}
 
-/**
- * Algoritmo de validação ISBN-13 idêntico ao Hibernate Validator @ISBN
- * Implementa o checksum mod 10 conforme ISO 2108
- */
 export const validarISBN13 = isbn => {
   if (!isbn) return 'ISBN não pode estar vazio'
 
-  // Formato básico: deve ter exatamente 13 dígitos numéricos
-  const isbnLimpo = isbn.toString().replace(/\s|-/g, '')
+  const isbnLimpo = isbn.toString().replace(/[\s-]/g, '')
   if (!/^\d{13}$/.test(isbnLimpo)) {
-    return 'ISBN deve ter exatamente 13 dígitos numéricos'
+    return 'ISBN-13 deve ter exatamente 13 dígitos numéricos'
   }
 
-  // Algoritmo de checksum ISBN-13
-  // Posições: 1 2 3 4 5 6 7 8 9 10 11 12 13
-  // Pesos:    1 3 1 3 1 3 1 3 1  3  1  3
   let soma = 0
   for (let i = 0; i < 12; i++) {
-    const digito = parseInt(isbnLimpo[i])
-    const peso = i % 2 === 0 ? 1 : 3 // Posições pares (0,2,4...) = peso 1, ímpares (1,3,5...) = peso 3
+    const digito = parseInt(isbnLimpo[i], 10)
+    const peso = i % 2 === 0 ? 1 : 3
     soma += digito * peso
   }
 
-  // Calcula dígito verificador
   const digitoVerificacao = (10 - (soma % 10)) % 10
-
-  // Último dígito deve corresponder ao calculado
-  const ultimoDigito = parseInt(isbnLimpo[12])
+  const ultimoDigito = parseInt(isbnLimpo[12], 10)
   if (digitoVerificacao !== ultimoDigito) {
     return 'ISBN inválido (dígito verificador incorreto)'
   }
 
-  return null // ISBN válido
+  return null
 }
 
-// ========================================
-// VALIDADOR COMPLETO CRIARLIVRODTO
-// ========================================
+export const validarISBN10 = isbn => {
+  if (!isbn) return 'ISBN não pode estar vazio'
 
-/**
- * Classe validadora que replica exatamente o CriarLivroDTO.java
- */
+  const isbnLimpo = isbn.toString().replace(/[\s-]/g, '').toUpperCase()
+  if (!/^\d{9}[\dX]$/.test(isbnLimpo)) {
+    return 'ISBN-10 deve ter 10 caracteres (dígitos e X opcional no final)'
+  }
+
+  let soma = 0
+  for (let i = 0; i < 10; i++) {
+    const char = isbnLimpo[i]
+    const valor = char === 'X' ? 10 : parseInt(char, 10)
+    soma += valor * (10 - i)
+  }
+
+  if (soma % 11 !== 0) {
+    return 'ISBN inválido (dígito verificador incorreto)'
+  }
+
+  return null
+}
+
+export const validarISBN = isbn => {
+  if (!isbn) return 'ISBN não pode estar vazio'
+  const limpo = isbn.toString().replace(/[\s-]/g, '')
+  if (limpo.length === 13) return validarISBN13(limpo)
+  if (limpo.length === 10) return validarISBN10(limpo)
+  return 'Informe um ISBN-10 ou ISBN-13 válido'
+}
+
 export class CriarLivroDTOValidator {
   constructor() {
     this.errors = {}
   }
 
-  /**
-   * Valida todos os campos do formulário
-   */
   validar(dados) {
     this.errors = {}
 
-    // @NotBlank(message = "O título não pode estar em branco")
-    this.errors.tituloLivro = validarNotBlank(dados.tituloLivro, 'Título')
+    this.errors.tituloLivro =
+      validarNotBlank(dados.tituloLivro, 'Título') ||
+      validarMaxLength(dados.tituloLivro, 200, 'Título')
 
-    // @NotBlank(message = "A editora não pode estar em branco")
-    this.errors.editoraLivro = validarNotBlank(dados.editoraLivro, 'Editora')
+    this.errors.editoraLivro =
+      validarNotBlank(dados.editoraLivro, 'Editora') ||
+      validarMaxLength(dados.editoraLivro, 100, 'Editora')
 
-    // @Min(1000) @Max(2100)
-    this.errors.anoPublicado = validarMinMax(
-      dados.anoPublicado,
-      1000,
-      2100,
-      'Ano'
-    )
+    this.errors.anoPublicado = validarMinMax(dados.anoPublicado, 1000, 2100, 'Ano')
 
-    // @NotBlank(message = "A descrição não pode estar em branco")
-    this.errors.descricaoLivro = validarNotBlank(
-      dados.descricaoLivro,
-      'Descrição'
-    )
+    this.errors.descricaoLivro =
+      validarNotBlank(dados.descricaoLivro, 'Descrição') ||
+      validarMaxLength(dados.descricaoLivro, 500, 'Descrição')
 
-    // @NotBlank + @ISBN - validação completa do ISBN
     const erroISBN = validarNotBlank(dados.isbnLivro, 'ISBN')
     if (erroISBN) {
       this.errors.isbnLivro = erroISBN
     } else {
-      this.errors.isbnLivro = validarISBN13(dados.isbnLivro)
+      this.errors.isbnLivro =
+        validarMaxLength(dados.isbnLivro, 20, 'ISBN') || validarISBN(dados.isbnLivro)
     }
 
-    // @NotNull(message = "O ID do autor não pode ser nulo")
     this.errors.idAutor = validarNotNull(dados.idAutor, 'Autor')
 
-    // Remove erros nulos (campos válidos)
     Object.keys(this.errors).forEach(key => {
       if (this.errors[key] === null) {
         delete this.errors[key]
@@ -142,60 +136,52 @@ export class CriarLivroDTOValidator {
     return Object.keys(this.errors).length === 0
   }
 
-  /**
-   * Retorna todas as mensagens de erro
-   */
   getErrors() {
     return this.errors
   }
 
-  /**
-   * Verifica se há erros
-   */
   hasErrors() {
     return Object.keys(this.errors).length > 0
   }
 
-  /**
-   * Limpa dados (trim nos textos)
-   */
   static limparDados(dados) {
+    const anoStr = dados.anoPublicado?.toString().trim() ?? ''
+    const anoPublicado = /^-?\d+$/.test(anoStr) ? parseInt(anoStr, 10) : ''
+
     return {
       ...dados,
       tituloLivro: dados.tituloLivro?.toString().trim() || '',
       editoraLivro: dados.editoraLivro?.toString().trim() || '',
       descricaoLivro: dados.descricaoLivro?.toString().trim() || '',
       isbnLivro: dados.isbnLivro?.toString().trim() || '',
-      anoPublicado: parseInt(dados.anoPublicado) || 0,
+      anoPublicado,
       disponivel: dados.disponivel !== undefined ? dados.disponivel : true,
-      idAutor: dados.idAutor ? parseInt(dados.idAutor) : null,
+      idAutor: dados.idAutor ? parseInt(dados.idAutor, 10) : null,
       idCategorias: Array.isArray(dados.idCategorias)
-        ? dados.idCategorias.map(id => parseInt(id)).filter(id => !isNaN(id))
+        ? dados.idCategorias.map(id => parseInt(id, 10)).filter(id => !isNaN(id))
         : [],
       idGeneros: Array.isArray(dados.idGeneros)
-        ? dados.idGeneros.map(id => parseInt(id)).filter(id => !isNaN(id))
+        ? dados.idGeneros.map(id => parseInt(id, 10)).filter(id => !isNaN(id))
         : [],
     }
   }
 }
-/**
- * Classe validadora que replica exatamente o ModelAutor.java
- */
+
 export class AutorValidator {
   constructor() {
     this.errors = {}
   }
 
-  /**
-   * Valida autorLivro e autorNacionalidade (@NotBlank)
-   */
   validar(dados) {
     this.errors = {}
 
-    this.errors.autorLivro = validarNotBlank(dados.autorLivro, 'Nome do autor')
-    this.errors.autorNacionalidade = validarNotBlank(dados.autorNacionalidade, 'Nacionalidade')
+    this.errors.autorLivro =
+      validarNotBlank(dados.autorLivro, 'Nome do autor') ||
+      validarMaxLength(dados.autorLivro, 100, 'Nome do autor')
+    this.errors.autorNacionalidade =
+      validarNotBlank(dados.autorNacionalidade, 'Nacionalidade') ||
+      validarMaxLength(dados.autorNacionalidade, 100, 'Nacionalidade')
 
-    // Remove erros nulos (campos válidos)
     Object.keys(this.errors).forEach(key => {
       if (this.errors[key] === null) {
         delete this.errors[key]
@@ -221,23 +207,18 @@ export class AutorValidator {
   }
 }
 
-/**
- * Classe validadora que replica exatamente o Categoria.java
- */
 export class CategoriaValidator {
   constructor() {
     this.errors = {}
   }
 
-  /**
-   * Valida nomeCategoria (@NotBlank)
-   */
   validar(dados) {
     this.errors = {}
 
-    this.errors.nomeCategoria = validarNotBlank(dados.nomeCategoria, 'Nome da categoria')
+    this.errors.nomeCategoria =
+      validarNotBlank(dados.nomeCategoria, 'Nome da categoria') ||
+      validarMaxLength(dados.nomeCategoria, 100, 'Nome da categoria')
 
-    // Remove erros nulos (campos válidos)
     Object.keys(this.errors).forEach(key => {
       if (this.errors[key] === null) {
         delete this.errors[key]
@@ -262,23 +243,18 @@ export class CategoriaValidator {
   }
 }
 
-/**
- * Classe validadora que replica exatamente o Genero.java
- */
 export class GeneroValidator {
   constructor() {
     this.errors = {}
   }
 
-  /**
-   * Valida nomeGenero (@NotBlank)
-   */
   validar(dados) {
     this.errors = {}
 
-    this.errors.nomeGenero = validarNotBlank(dados.nomeGenero, 'Nome do gênero')
+    this.errors.nomeGenero =
+      validarNotBlank(dados.nomeGenero, 'Nome do gênero') ||
+      validarMaxLength(dados.nomeGenero, 50, 'Nome do gênero')
 
-    // Remove erros nulos (campos válidos)
     Object.keys(this.errors).forEach(key => {
       if (this.errors[key] === null) {
         delete this.errors[key]
@@ -303,60 +279,23 @@ export class GeneroValidator {
   }
 }
 
-/**
- * Validação customizada para datas - verifica se uma data é posterior à outra
- */
-export const validarDataPosterior = (dataInicial, dataPosterior, campoData, nomeCampo) => {
-  if (!dataInicial || !dataPosterior) return null
-
-  const dtInicial = new Date(dataInicial)
-  const dtPosterior = new Date(dataPosterior)
-
-  if (isNaN(dtInicial.getTime()) || isNaN(dtPosterior.getTime())) {
-    return `${nomeCampo} deve ser uma data válida`
-  }
-
-  if (dtPosterior <= dtInicial) {
-    return `${nomeCampo} deve ser posterior à data inicial`
-  }
-
-  return null
-}
-
-/**
- * Classe validadora que replica exatamente o ModelEmprestimos.java
- */
-export class EmprestimoValidator {
+export class UsuarioValidator {
   constructor() {
     this.errors = {}
   }
 
-  /**
-   * Valida idLivro, idUsuario (@NotNull), datas (@NotNull) e dataDevolucao > dataEmprestimo
-   */
   validar(dados) {
     this.errors = {}
 
-    // @NotNull validations
-    this.errors.idLivro = validarNotNull(dados.idLivro, 'Livro')
-    this.errors.idUsuario = validarNotNull(dados.idUsuario, 'Usuário')
-    this.errors.dataEmprestimo = validarNotNull(dados.dataEmprestimo, 'Data do empréstimo')
-    this.errors.dataDevolucao = validarNotNull(dados.dataDevolucao, 'Data de devolução')
+    this.errors.nome = validarNotBlank(dados.nome, 'Nome')
 
-    // Custom validation: dataDevolucao > dataEmprestimo
-    if (dados.dataEmprestimo && dados.dataDevolucao) {
-      const erroData = validarDataPosterior(
-        dados.dataEmprestimo,
-        dados.dataDevolucao,
-        'dataDevolucao',
-        'Data de devolução prevista'
-      )
-      if (erroData) {
-        this.errors.dataDevolucao = erroData
-      }
+    const erroEmail = validarNotBlank(dados.email, 'E-mail')
+    if (erroEmail) {
+      this.errors.email = erroEmail
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dados.email)) {
+      this.errors.email = 'Informe um e-mail válido (ex.: nome@dominio.com)'
     }
 
-    // Remove erros nulos (campos válidos)
     Object.keys(this.errors).forEach(key => {
       if (this.errors[key] === null) {
         delete this.errors[key]
@@ -375,7 +314,64 @@ export class EmprestimoValidator {
   }
 
   static limparDados(dados) {
-    return { ...dados }
+    return {
+      nome: dados.nome?.toString().trim() || '',
+      email: dados.email?.toString().trim() || '',
+      telefone: dados.telefone?.toString().trim() || '',
+    }
+  }
+}
+
+export const validarDataPosterior = (dataInicial, dataPosterior, campoData, nomeCampo) => {
+  if (!dataInicial || !dataPosterior) return null
+
+  const dtInicial = new Date(dataInicial)
+  const dtPosterior = new Date(dataPosterior)
+
+  if (isNaN(dtInicial.getTime()) || isNaN(dtPosterior.getTime())) {
+    return `${nomeCampo} deve ser uma data válida`
+  }
+
+  if (dtPosterior <= dtInicial) {
+    return `${nomeCampo} deve ser posterior à data inicial`
+  }
+
+  return null
+}
+
+export class EmprestimoValidator {
+  constructor() {
+    this.errors = {}
+  }
+
+  validar(dados) {
+    this.errors = {}
+
+    this.errors.idLivro = validarNotNull(dados.idLivro, 'Livro')
+    this.errors.idUsuario = validarNotNull(dados.idUsuario, 'Usuário')
+
+    Object.keys(this.errors).forEach(key => {
+      if (this.errors[key] === null) {
+        delete this.errors[key]
+      }
+    })
+
+    return Object.keys(this.errors).length === 0
+  }
+
+  getErrors() {
+    return this.errors
+  }
+
+  hasErrors() {
+    return Object.keys(this.errors).length > 0
+  }
+
+  static limparDados(dados) {
+    return {
+      idLivro: dados.idLivro ? parseInt(dados.idLivro, 10) : null,
+      idUsuario: dados.idUsuario ? parseInt(dados.idUsuario, 10) : null,
+    }
   }
 }
 

@@ -1,245 +1,288 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import {
-  emprestimosAPI,
-  livrosAPI,
-  usuariosAPI,
-} from '../services/api'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, Calendar, Plus } from 'lucide-react'
+import { emprestimosAPI, livrosAPI, usuariosAPI } from '../services/api'
 import { EmprestimoValidator } from '../services/validation'
+import { extractApiError } from '../utils/apiError'
+import { addDaysISO, formatDateBR, getTodayISO } from '../utils/date'
+import FormField from '../components/forms/FormField'
+import UsuarioForm from '../components/forms/UsuarioForm'
+import ModalDialog from '../components/ui/ModalDialog'
+import PageHeader from '../components/ui/PageHeader'
+import { useToast } from '../components/ui/toastContext'
 
 export default function CadastrarEmprestimo() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const initialLivroParam = searchParams.get('livroId') ?? ''
 
-  const [novoEmprestimo, setNovoEmprestimo] = useState({
-    idLivro: '',
+  const [form, setForm] = useState({
+    idLivro: initialLivroParam,
     idUsuario: '',
-    dataEmprestimo: new Date().toISOString().split('T')[0], // Hoje
-    dataDevolucao: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Hoje + 7 dias
   })
-
   const [livrosDisponiveis, setLivrosDisponiveis] = useState([])
   const [usuarios, setUsuarios] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [carregandoDados, setCarregandoDados] = useState(true)
-
-  // ✅ Estado de erros usando o validador dedicado
+  const [loadingData, setLoadingData] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [errors, setErrors] = useState({})
+  const [submitError, setSubmitError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [userModalOpen, setUserModalOpen] = useState(false)
 
-  useEffect(() => {
-    carregarDados()
-  }, [])
+  const formRef = useRef(null)
+  const livroSelectId = useId()
+  const usuarioSelectId = useId()
+  const { showToast } = useToast()
 
-  const carregarDados = async () => {
-    setCarregandoDados(true)
+  const hojeISO = getTodayISO()
+  const devolucaoISO = addDaysISO(hojeISO, 7)
+
+  const carregarDados = useCallback(async () => {
+    setLoadingData(true)
+    setLoadError('')
     try {
-      const [livrosResponse, usuariosResponse] = await Promise.all([
+      const [livrosData, usuariosData] = await Promise.all([
         livrosAPI.listarDisponiveis(),
         usuariosAPI.listarTodos(),
       ])
+      const safeLivros = Array.isArray(livrosData) ? livrosData : []
+      const safeUsuarios = Array.isArray(usuariosData) ? usuariosData : []
 
-      setLivrosDisponiveis(livrosResponse)
-      setUsuarios(usuariosResponse)
+      setLivrosDisponiveis(safeLivros)
+      setUsuarios(safeUsuarios)
+
+      if (initialLivroParam) {
+        const exists = safeLivros.some(l => String(l.idLivro) === String(initialLivroParam))
+        if (!exists) {
+          setForm(prev => ({ ...prev, idLivro: '' }))
+        }
+      }
     } catch (error) {
-      console.error('Erro ao carregar dados:', error)
-      alert('Erro ao carregar dados! Verifique se o Spring Boot está rodando.')
+      setLoadError(
+        extractApiError(error, 'Não foi possível carregar livros disponíveis e usuários.').message
+      )
     } finally {
-      setCarregandoDados(false)
+      setLoadingData(false)
     }
+  }, [initialLivroParam])
+
+  useEffect(() => {
+    carregarDados()
+  }, [carregarDados])
+
+  const focusFirstInvalid = () => {
+    requestAnimationFrame(() => {
+      formRef.current?.querySelector('[aria-invalid="true"]')?.focus()
+    })
   }
 
-  // ========================================
-  // 🔥 VALIDAÇÃO USANDO EmprestimoValidator
-  // ========================================
+  const handleSubmit = async event => {
+    event.preventDefault()
+    setSubmitError('')
 
-  const handleSubmit = async e => {
-    e.preventDefault()
-    setLoading(true)
-
-    // 🧹 Limpar os dados (equivalente ao DTO Java)
-    const dadosLimpos = EmprestimoValidator.limparDados(novoEmprestimo)
-
-    // ✅ Validar usando a classe separada (equivalente ao ModelEmprestimos.java)
+    const dadosLimpos = EmprestimoValidator.limparDados(form)
     const validator = new EmprestimoValidator()
-    const isValid = validator.validar(dadosLimpos)
 
-    if (!isValid) {
+    if (!validator.validar(dadosLimpos)) {
       setErrors(validator.getErrors())
-      setLoading(false)
+      focusFirstInvalid()
       return
     }
 
-    // ✅ Dados válidos - limpar erros e enviar
     setErrors({})
+    setSaving(true)
 
     try {
       await emprestimosAPI.criar({
         livroId: dadosLimpos.idLivro,
         usuarioId: dadosLimpos.idUsuario,
       })
-      alert('✅ Empréstimo criado com sucesso!')
+      showToast({ type: 'success', message: 'Empréstimo registrado com sucesso.' })
       navigate('/emprestimos')
     } catch (error) {
-      console.error('Erro ao criar empréstimo:', error)
-
-      // Verificar tipo de erro
-      if (error.response?.status === 400) {
-        alert('❌ Dados inválidos! Verifique se o livro está disponível.')
-      } else if (error.response?.status === 409) {
-        alert('❌ Livro não está disponível para empréstimo!')
-      } else {
-        alert('❌ Erro ao criar empréstimo!')
-      }
+      const parsed = extractApiError(error, 'Não foi possível registrar o empréstimo.')
+      setSubmitError(parsed.message)
+    } finally {
+      setSaving(false)
     }
-    setLoading(false)
   }
 
-  if (carregandoDados) {
-    return (
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center text-[#abd1c6] text-xl">
-          Carregando dados de livros e usuários...
-        </div>
-      </main>
-    )
+  const handleQuickUserCreated = criado => {
+    setUsuarios(prev => [...prev, criado])
+    setForm(prev => ({ ...prev, idUsuario: String(criado.id) }))
+    setErrors(prev => ({ ...prev, idUsuario: undefined }))
+    setUserModalOpen(false)
+    showToast({ type: 'success', message: `Usuário "${criado.nome}" cadastrado.` })
   }
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-[#abd1c6] mb-6">
-          📖 Cadastrar Novo Empréstimo
-        </h1>
+    <div className="mx-auto max-w-2xl">
+      <div className="mb-4">
+        <Link
+          to="/emprestimos"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted transition hover:text-ink"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          <span>Voltar para empréstimos</span>
+        </Link>
+      </div>
 
-        <div className="bg-[#e8e4e6] rounded-lg shadow-lg p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Selecionar Livro */}
-            <div>
-              <label className="block text-[#001e1d] font-semibold mb-2">
-                Livros Disponíveis *
-              </label>
-              <select
-                value={novoEmprestimo.idLivro}
-                onChange={e => setNovoEmprestimo({ ...novoEmprestimo, idLivro: e.target.value })}
-                className={`w-full border rounded-lg px-4 py-2 bg-white ${
-                  errors.idLivro ? 'border-red-500' : ''
-                }`}
-                required
-                disabled={loading}
+      <PageHeader
+        eyebrow="Circulação · Retirada"
+        title="Registrar empréstimo"
+        description="Vincule um exemplar disponível a um leitor cadastrado. O prazo padrão de devolução é de 7 dias."
+      />
+
+      <div className="rounded-2xl border border-edge bg-surface p-6 shadow-xs sm:p-8">
+        {loadingData ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map(n => (
+              <div key={n} className="h-14 animate-pulse rounded-xl bg-subtle" />
+            ))}
+          </div>
+        ) : loadError ? (
+          <div
+            role="alert"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger"
+          >
+            <span>{loadError}</span>
+            <button
+              type="button"
+              onClick={carregarDados}
+              className="rounded-lg border border-danger/40 px-3 py-1.5 font-semibold transition hover:bg-danger/10"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        ) : (
+          <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-6">
+            {submitError && (
+              <div
+                role="alert"
+                className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger"
               >
-                <option value="">
-                  Selecione um livro disponível ({livrosDisponiveis.length} disponíveis)
-                </option>
-                {livrosDisponiveis.map(livro => (
-                  <option key={livro.idLivro} value={livro.idLivro}>
-                    {livro.tituloLivro} - {livro.autorLivro} (ISBN: {livro.isbnLivro})
-                  </option>
-                ))}
-              </select>
-              {errors.idLivro && (
-                <p className="text-red-500 text-sm mt-1">{errors.idLivro}</p>
+                {submitError}
+              </div>
+            )}
+
+            <FormField
+              id={livroSelectId}
+              label="Livro disponível"
+              hint={`${livrosDisponiveis.length} ${
+                livrosDisponiveis.length === 1 ? 'exemplar disponível' : 'exemplares disponíveis'
+              } para retirada.`}
+              error={errors.idLivro}
+              required
+            >
+              {props => (
+                <select
+                  {...props}
+                  required
+                  disabled={saving}
+                  value={form.idLivro}
+                  onChange={e => setForm(prev => ({ ...prev, idLivro: e.target.value }))}
+                >
+                  <option value="">Selecione um livro disponível</option>
+                  {livrosDisponiveis.map(livro => (
+                    <option key={livro.idLivro} value={livro.idLivro}>
+                      {livro.tituloLivro} — {livro.autorLivro} (ISBN {livro.isbnLivro})
+                    </option>
+                  ))}
+                </select>
               )}
+            </FormField>
+
+            <FormField
+              id={usuarioSelectId}
+              label="Leitor"
+              hint={`${usuarios.length} ${
+                usuarios.length === 1 ? 'leitor cadastrado' : 'leitores cadastrados'
+              }.`}
+              error={errors.idUsuario}
+              required
+              actionSlot={
+                <button
+                  type="button"
+                  onClick={() => setUserModalOpen(true)}
+                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-accent transition hover:bg-accent-soft"
+                >
+                  <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>Novo usuário</span>
+                </button>
+              }
+            >
+              {props => (
+                <select
+                  {...props}
+                  required
+                  disabled={saving}
+                  value={form.idUsuario}
+                  onChange={e => setForm(prev => ({ ...prev, idUsuario: e.target.value }))}
+                >
+                  <option value="">Selecione um leitor</option>
+                  {usuarios.map(usuario => (
+                    <option key={usuario.id} value={usuario.id}>
+                      {usuario.nome} ({usuario.email})
+                    </option>
+                  ))}
+                </select>
+              )}
+            </FormField>
+
+            <div className="rounded-xl border border-edge bg-canvas/70 p-4">
+              <div className="mb-2 flex items-center gap-2 text-xs font-semibold tracking-wider text-ink-muted uppercase">
+                <Calendar className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
+                <span>Vigência automática do empréstimo</span>
+              </div>
+              <dl className="grid gap-3 text-sm sm:grid-cols-2">
+                <div>
+                  <dt className="text-xs text-ink-muted">Data da retirada</dt>
+                  <dd className="mt-0.5 font-mono font-semibold text-ink">
+                    {formatDateBR(hojeISO)} (hoje)
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-ink-muted">Devolução prevista (+7 dias)</dt>
+                  <dd className="mt-0.5 font-mono font-semibold text-ink">
+                    {formatDateBR(devolucaoISO)}
+                  </dd>
+                </div>
+              </dl>
             </div>
 
-            {/* Selecionar Usuário */}
-            <div>
-              <label className="block text-[#001e1d] font-semibold mb-2">
-                Usuário *
-              </label>
-              <select
-                value={novoEmprestimo.idUsuario}
-                onChange={e => setNovoEmprestimo({ ...novoEmprestimo, idUsuario: e.target.value })}
-                className={`w-full border rounded-lg px-4 py-2 bg-white ${
-                  errors.idUsuario ? 'border-red-500' : ''
-                }`}
-                required
-                disabled={loading}
-              >
-                <option value="">
-                  Selecione um usuário ({usuarios.length} cadastrados)
-                </option>
-                {usuarios.map(usuario => (
-                  <option key={usuario.idUsuario} value={usuario.idUsuario}>
-                    {usuario.nomeUsuario} - {usuario.emailUsuario}
-                  </option>
-                ))}
-              </select>
-              {errors.idUsuario && (
-                <p className="text-red-500 text-sm mt-1">{errors.idUsuario}</p>
-              )}
-            </div>
-
-            {/* Data Emprestimo */}
-            <div>
-              <label className="block text-[#001e1d] font-semibold mb-2">
-                Data do Empréstimo *
-              </label>
-              <input
-                type="date"
-                value={novoEmprestimo.dataEmprestimo}
-                onChange={e => setNovoEmprestimo({ ...novoEmprestimo, dataEmprestimo: e.target.value })}
-                className={`w-full border rounded-lg px-4 py-2 bg-white ${
-                  errors.dataEmprestimo ? 'border-red-500' : ''
-                }`}
-                required
-                disabled={loading}
-              />
-              {errors.dataEmprestimo && (
-                <p className="text-red-500 text-sm mt-1">{errors.dataEmprestimo}</p>
-              )}
-            </div>
-
-            {/* Data Devolução */}
-            <div>
-              <label className="block text-[#001e1d] font-semibold mb-2">
-                Data de Devolução Prevista *
-              </label>
-              <input
-                type="date"
-                value={novoEmprestimo.dataDevolucao}
-                onChange={e => setNovoEmprestimo({ ...novoEmprestimo, dataDevolucao: e.target.value })}
-                className={`w-full border rounded-lg px-4 py-2 bg-white ${
-                  errors.dataDevolucao ? 'border-red-500' : ''
-                }`}
-                required
-                disabled={loading}
-                min={new Date().toISOString().split('T')[0]} // Não pode ser menor que hoje
-              />
-              {errors.dataDevolucao && (
-                <p className="text-red-500 text-sm mt-1">{errors.dataDevolucao}</p>
-              )}
-            </div>
-
-            {/* Botões */}
-            <div className="flex gap-4">
+            <div className="flex flex-col-reverse gap-3 border-t border-edge pt-5 sm:flex-row sm:justify-end">
               <button
                 type="button"
+                disabled={saving}
                 onClick={() => navigate('/emprestimos')}
-                className="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 rounded-lg transition disabled:opacity-50"
-                disabled={loading}
+                className="inline-flex items-center justify-center rounded-lg border border-edge-strong bg-surface px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-subtle disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="flex-1 bg-[#74d09d] hover:bg-green-400 text-[#107c15] font-bold py-3 rounded-lg transition disabled:opacity-50"
-                disabled={loading || livrosDisponiveis.length === 0 || usuarios.length === 0}
+                disabled={saving || livrosDisponiveis.length === 0 || usuarios.length === 0}
+                className="inline-flex items-center justify-center rounded-lg bg-accent px-6 py-2.5 text-sm font-semibold text-accent-fg shadow-xs transition hover:bg-accent-hover disabled:opacity-50"
               >
-                {loading ? '⏳ Criando Empréstimo...' : '✅ Criar Empréstimo'}
+                {saving ? 'Registrando...' : 'Confirmar empréstimo'}
               </button>
             </div>
-
-            {/* Status dos Dados */}
-            <div className="text-sm text-gray-600 bg-gray-100 p-4 rounded-lg">
-              <strong>Status:</strong>
-              <ul className="mt-2 space-y-1">
-                <li>• Livros disponíveis: {livrosDisponiveis.length}</li>
-                <li>• Usuários cadastrados: {usuarios.length}</li>
-                <li>• Empréstimo por 7 dias (padrão da biblioteca)</li>
-              </ul>
-            </div>
           </form>
-        </div>
+        )}
       </div>
-    </main>
+
+      <ModalDialog
+        open={userModalOpen}
+        onClose={() => setUserModalOpen(false)}
+        title="Novo usuário"
+        description="O leitor será selecionado automaticamente neste empréstimo."
+        lightDismiss={false}
+      >
+        <UsuarioForm
+          onSuccess={handleQuickUserCreated}
+          onCancel={() => setUserModalOpen(false)}
+        />
+      </ModalDialog>
+    </div>
   )
 }

@@ -1,16 +1,28 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import Generos from './Generos'
+import { ToastProvider } from '../components/ui/ToastProvider'
 import { generosAPI } from '../services/api'
 
 vi.mock('../services/api', () => ({
   generosAPI: {
     listarTodos: vi.fn(),
+    criar: vi.fn(),
     deletar: vi.fn(),
   },
 }))
+
+function renderGeneros() {
+  return render(
+    <MemoryRouter>
+      <ToastProvider>
+        <Generos />
+      </ToastProvider>
+    </MemoryRouter>
+  )
+}
 
 describe('Generos', () => {
   beforeEach(() => {
@@ -23,11 +35,7 @@ describe('Generos', () => {
       { idGenero: 2, nomeGenero: 'Fantasia' },
     ])
 
-    render(
-      <MemoryRouter>
-        <Generos />
-      </MemoryRouter>
-    )
+    renderGeneros()
 
     expect(await screen.findByText('Ficção Científica')).toBeInTheDocument()
     expect(screen.getByText('Fantasia')).toBeInTheDocument()
@@ -36,34 +44,29 @@ describe('Generos', () => {
   it('deve exibir mensagem quando não houver gêneros cadastrados', async () => {
     generosAPI.listarTodos.mockResolvedValue([])
 
-    render(
-      <MemoryRouter>
-        <Generos />
-      </MemoryRouter>
-    )
+    renderGeneros()
 
     expect(
       await screen.findByText('Nenhum gênero cadastrado. Crie o primeiro!')
     ).toBeInTheDocument()
   })
 
-  it('deve deletar o gênero quando o usuário confirmar', async () => {
+  it('deve deletar o gênero quando o usuário confirmar no dialog', async () => {
     const user = userEvent.setup()
     generosAPI.listarTodos
       .mockResolvedValueOnce([{ idGenero: 1, nomeGenero: 'Drama' }])
       .mockResolvedValueOnce([])
     generosAPI.deletar.mockResolvedValue(null)
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
-    vi.spyOn(window, 'alert').mockImplementation(() => {})
 
-    render(
-      <MemoryRouter>
-        <Generos />
-      </MemoryRouter>
-    )
+    renderGeneros()
 
     await screen.findByText('Drama')
-    await user.click(screen.getByRole('button', { name: 'Deletar' }))
+    await user.click(screen.getByRole('button', { name: 'Deletar Drama' }))
+
+    const dialog = screen.getByRole('dialog')
+    expect(within(dialog).getByText('Deletar gênero?')).toBeInTheDocument()
+
+    await user.click(within(dialog).getByRole('button', { name: 'Deletar' }))
 
     await waitFor(() => {
       expect(generosAPI.deletar).toHaveBeenCalledWith(1)

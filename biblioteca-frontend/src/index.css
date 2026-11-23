@@ -1,1 +1,333 @@
 @import "tailwindcss";
+
+@theme inline {
+  --font-serif: "Newsreader", Georgia, Cambria, "Times New Roman", serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-subtle: var(--bg-subtle);
+  --color-edge: var(--border-subtle);
+  --color-edge-strong: var(--border-strong);
+  --color-ink: var(--text-primary);
+  --color-ink-muted: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+}
+
+:root {
+  color-scheme: light dark;
+
+  --bg-canvas-light: #FAF8F5;
+  --bg-canvas-dark: #0C1513;
+  --bg-surface-light: #FFFFFF;
+  --bg-surface-dark: #13211E;
+  --bg-subtle-light: #F2EDE4;
+  --bg-subtle-dark: #1A2C28;
+  --border-subtle-light: #E2DBD0;
+  --border-subtle-dark: #273E38;
+  --border-strong-light: #C9BFAF;
+  --border-strong-dark: #3A5951;
+  --text-primary-light: #181C1A;
+  --text-primary-dark: #F2EFE9;
+  --text-secondary-light: #525B56;
+  --text-secondary-dark: #A5B8B1;
+  --accent-light: #155745;
+  --accent-dark: #52B797;
+  --accent-hover-light: #0F4234;
+  --accent-hover-dark: #6AC7A9;
+  --accent-fg-light: #FFFFFF;
+  --accent-fg-dark: #071713;
+  --accent-soft-light: #E6F2EE;
+  --accent-soft-dark: #16332B;
+  --warning-light: #9A5B13;
+  --warning-dark: #F0B45B;
+  --warning-soft-light: #FDF3E3;
+  --warning-soft-dark: #2D2212;
+  --danger-light: #B42318;
+  --danger-dark: #F07167;
+  --danger-soft-light: #FDECEC;
+  --danger-soft-dark: #321818;
+  --success-light: #166534;
+  --success-dark: #5FD08E;
+  --success-soft-light: #E7F6EC;
+  --success-soft-dark: #132E20;
+
+  --bg-canvas: var(--bg-canvas-light);
+  --bg-surface: var(--bg-surface-light);
+  --bg-subtle: var(--bg-subtle-light);
+  --border-subtle: var(--border-subtle-light);
+  --border-strong: var(--border-strong-light);
+  --text-primary: var(--text-primary-light);
+  --text-secondary: var(--text-secondary-light);
+  --accent: var(--accent-light);
+  --accent-hover: var(--accent-hover-light);
+  --accent-fg: var(--accent-fg-light);
+  --accent-soft: var(--accent-soft-light);
+  --warning: var(--warning-light);
+  --warning-soft: var(--warning-soft-light);
+  --danger: var(--danger-light);
+  --danger-soft: var(--danger-soft-light);
+  --success: var(--success-light);
+  --success-soft: var(--success-soft-light);
+
+  @media (prefers-color-scheme: dark) {
+    --bg-canvas: var(--bg-canvas-dark);
+    --bg-surface: var(--bg-surface-dark);
+    --bg-subtle: var(--bg-subtle-dark);
+    --border-subtle: var(--border-subtle-dark);
+    --border-strong: var(--border-strong-dark);
+    --text-primary: var(--text-primary-dark);
+    --text-secondary: var(--text-secondary-dark);
+    --accent: var(--accent-dark);
+    --accent-hover: var(--accent-hover-dark);
+    --accent-fg: var(--accent-fg-dark);
+    --accent-soft: var(--accent-soft-dark);
+    --warning: var(--warning-dark);
+    --warning-soft: var(--warning-soft-dark);
+    --danger: var(--danger-dark);
+    --danger-soft: var(--danger-soft-dark);
+    --success: var(--success-dark);
+    --success-soft: var(--success-soft-dark);
+  }
+
+  &:has(> head > meta[name="color-scheme"][content="dark"]) {
+    color-scheme: dark;
+  }
+
+  &:has(> head > meta[name="color-scheme"][content="light"]) {
+    color-scheme: light;
+  }
+
+  @supports (color: light-dark(white, black)) {
+    --bg-canvas: light-dark(var(--bg-canvas-light), var(--bg-canvas-dark));
+    --bg-surface: light-dark(var(--bg-surface-light), var(--bg-surface-dark));
+    --bg-subtle: light-dark(var(--bg-subtle-light), var(--bg-subtle-dark));
+    --border-subtle: light-dark(var(--border-subtle-light), var(--border-subtle-dark));
+    --border-strong: light-dark(var(--border-strong-light), var(--border-strong-dark));
+    --text-primary: light-dark(var(--text-primary-light), var(--text-primary-dark));
+    --text-secondary: light-dark(var(--text-secondary-light), var(--text-secondary-dark));
+    --accent: light-dark(var(--accent-light), var(--accent-dark));
+    --accent-hover: light-dark(var(--accent-hover-light), var(--accent-hover-dark));
+    --accent-fg: light-dark(var(--accent-fg-light), var(--accent-fg-dark));
+    --accent-soft: light-dark(var(--accent-soft-light), var(--accent-soft-dark));
+    --warning: light-dark(var(--warning-light), var(--warning-dark));
+    --warning-soft: light-dark(var(--warning-soft-light), var(--warning-soft-dark));
+    --danger: light-dark(var(--danger-light), var(--danger-dark));
+    --danger-soft: light-dark(var(--danger-soft-light), var(--danger-soft-dark));
+    --success: light-dark(var(--success-light), var(--success-dark));
+    --success-soft: light-dark(var(--success-soft-light), var(--success-soft-dark));
+  }
+
+  --scrollbar-thumb: var(--border-strong);
+  --scrollbar-track: var(--bg-subtle);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  accent-color: var(--accent);
+}
+
+@supports not (color: light-dark(white, black)) {
+  :root:has(> head > meta[name="color-scheme"][content="dark"]) {
+    --bg-canvas: var(--bg-canvas-dark);
+    --bg-surface: var(--bg-surface-dark);
+    --bg-subtle: var(--bg-subtle-dark);
+    --border-subtle: var(--border-subtle-dark);
+    --border-strong: var(--border-strong-dark);
+    --text-primary: var(--text-primary-dark);
+    --text-secondary: var(--text-secondary-dark);
+    --accent: var(--accent-dark);
+    --accent-hover: var(--accent-hover-dark);
+    --accent-fg: var(--accent-fg-dark);
+    --accent-soft: var(--accent-soft-dark);
+    --warning: var(--warning-dark);
+    --warning-soft: var(--warning-soft-dark);
+    --danger: var(--danger-dark);
+    --danger-soft: var(--danger-soft-dark);
+    --success: var(--success-dark);
+    --success-soft: var(--success-soft-dark);
+  }
+
+  :root:has(> head > meta[name="color-scheme"][content="light"]) {
+    --bg-canvas: var(--bg-canvas-light);
+    --bg-surface: var(--bg-surface-light);
+    --bg-subtle: var(--bg-subtle-light);
+    --border-subtle: var(--border-subtle-light);
+    --border-strong: var(--border-strong-light);
+    --text-primary: var(--text-primary-light);
+    --text-secondary: var(--text-secondary-light);
+    --accent: var(--accent-light);
+    --accent-hover: var(--accent-hover-light);
+    --accent-fg: var(--accent-fg-light);
+    --accent-soft: var(--accent-soft-light);
+    --warning: var(--warning-light);
+    --warning-soft: var(--warning-soft-light);
+    --danger: var(--danger-light);
+    --danger-soft: var(--danger-soft-light);
+    --success: var(--success-light);
+    --success-soft: var(--success-soft-light);
+  }
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--accent-soft);
+    color: var(--text-primary);
+  }
+}
+
+/* Mantém controles nativos dialog fechados invisíveis (escopar sempre em [open]) */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background-color: rgb(10 18 16 / 0.56);
+  backdrop-filter: blur(2px);
+}
+
+dialog.modal-panel[open] {
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.875rem;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: 0 24px 48px -12px rgb(0 0 0 / 0.28);
+  width: min(calc(100vw - 2rem), var(--modal-max-width, 32rem));
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+}
+
+dialog.nav-drawer[open] {
+  inset: 0;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  overflow: visible;
+}
+
+.nav-drawer-sheet {
+  width: min(20rem, 80dvw, calc(100dvw - 24px));
+  height: 100svh;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border-inline-end: 1px solid var(--border-subtle);
+  overflow-y: auto;
+}
+
+/* Tabela responsiva adaptada ao contêiner */
+.responsive-table-wrap {
+  container-type: inline-size;
+  overflow: auto;
+  max-inline-size: 100%;
+}
+
+.responsive-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+@container (width < 600px) {
+  .responsive-table,
+  .responsive-table thead,
+  .responsive-table tbody,
+  .responsive-table tr,
+  .responsive-table th,
+  .responsive-table td {
+    display: block;
+  }
+
+  .responsive-table thead {
+    display: none;
+  }
+
+  .responsive-table tbody tr {
+    margin-block-end: 0.875rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+    background-color: var(--bg-surface);
+    padding: 0.875rem 1rem;
+  }
+
+  .responsive-table tbody tr:last-child {
+    margin-block-end: 0;
+  }
+
+  .responsive-table tbody th[scope="row"] {
+    padding: 0 0 0.5rem 0;
+    margin-block-end: 0.5rem;
+    border-block-end: 1px solid var(--border-subtle);
+  }
+
+  .responsive-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.35rem 0;
+    border: 0;
+    text-align: right;
+  }
+
+  .responsive-table tbody td[data-label]::before {
+    content: attr(data-label);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  .responsive-table tbody td[data-label="Ações"] {
+    margin-block-start: 0.5rem;
+    padding-block-start: 0.625rem;
+    border-block-start: 1px solid var(--border-subtle);
+    justify-content: flex-end;
+  }
+
+  .responsive-table tbody td[data-label="Ações"]::before {
+    display: none;
+  }
+}
+
+/* Validação pós-interação */
+:is(input, select, textarea):user-invalid {
+  border-color: var(--danger);
+}
+
+/* Classe de ocultamento acessível */
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  clip-path: inset(50%) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}

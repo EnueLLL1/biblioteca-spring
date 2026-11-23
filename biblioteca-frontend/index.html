@@ -1,16 +1,29 @@
 <!DOCTYPE html>
-<html lang="PT-BR">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      try {
+        document.querySelector('meta[name="color-scheme"]').content =
+          localStorage.getItem('color-scheme') ?? 'light dark'
+      } catch {
+        // Ignora falha quando o acesso ao storage estiver bloqueado
+      }
+    </script>
     <link
       rel="icon"
-      type="image/svg"
-      href="book-closed-svgrepo-com.svg"
-      href="/biblioteca-frontend/src/index.css"
-      rel="stylesheet"
+      type="image/svg+xml"
+      href="/book-closed-svgrepo-com.svg"
     />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Biblioteca</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    />
+    <title>Biblioteca — Gestão de Acervo</title>
   </head>
   <body>
     <div id="root"></div>

@@ -133,6 +133,11 @@ export const usuariosAPI = {
         telefone: usuario.telefone,
       }),
     }),
+
+  deletar: id =>
+    request(`/usuarios/${id}`, {
+      method: 'DELETE',
+    }),
 }
 
 // ========================================
