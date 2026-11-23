@@ -1,0 +1,8 @@
+target/
+.git/
+.mvn/wrapper/maven-wrapper.jar
+biblioteca-frontend/node_modules/
+biblioteca-frontend/dist/
+.vscode/
+.idea/
+*.iml
