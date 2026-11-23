@@ -2,6 +2,7 @@ package com.enuelll1.biblioteca_spring.controller;
 
 import com.enuelll1.biblioteca_spring.dto.UsuarioDTO;
 import com.enuelll1.biblioteca_spring.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,9 @@ public class UsuarioController {
     // CRIAR USUARIO
     // ========================================
     @PostMapping
-    public ResponseEntity<Object> criar(@RequestBody UsuarioDTO usuarioDTO) {
-        try {
-            UsuarioDTO usuario = usuarioService.criar(usuarioDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<UsuarioDTO> criar(@Valid @RequestBody UsuarioDTO usuarioDTO) {
+        UsuarioDTO usuario = usuarioService.criar(usuarioDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
     }
 
     // ========================================
@@ -37,25 +34,15 @@ public class UsuarioController {
     // ========================================
     @GetMapping
     public ResponseEntity<List<UsuarioDTO>> listar() {
-        try {
-            List<UsuarioDTO> usuarios = usuarioService.listar();
-            return ResponseEntity.ok(usuarios);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(usuarioService.listar());
     }
 
     // ========================================
     // BUSCAR USUARIO POR ID
     // ========================================
     @GetMapping("/{id}")
-    public ResponseEntity<Object> buscarPorId(@PathVariable Long id) {
-        try {
-            UsuarioDTO usuario = usuarioService.buscarPorId(id);
-            return ResponseEntity.ok(usuario);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<UsuarioDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.buscarPorId(id));
     }
 
     // ========================================
@@ -63,37 +50,23 @@ public class UsuarioController {
     // ========================================
     @GetMapping("/buscar")
     public ResponseEntity<List<UsuarioDTO>> buscarPorNome(@RequestParam String nome) {
-        try {
-            List<UsuarioDTO> usuarios = usuarioService.buscarPorNome(nome);
-            return ResponseEntity.ok(usuarios);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity.ok(usuarioService.buscarPorNome(nome));
     }
 
     // ========================================
     // BUSCAR USUARIO POR EMAIL
     // ========================================
     @GetMapping("/email")
-    public ResponseEntity<Object> buscarPorEmail(@RequestParam String email) {
-        try {
-            UsuarioDTO usuario = usuarioService.buscarPorEmail(email);
-            return ResponseEntity.ok(usuario);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<UsuarioDTO> buscarPorEmail(@RequestParam String email) {
+        return ResponseEntity.ok(usuarioService.buscarPorEmail(email));
     }
 
     // ========================================
     // DELETAR USUARIO
     // ========================================
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable Long id) {
-        try {
-            usuarioService.deletar(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        usuarioService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }
